@@ -5,7 +5,7 @@ EXISTS=`ls $SCRIPT_DIR/$1`
 
 if [ $EXISTS ]  
 then
-    gcc -o binaryC $SCRIPT_DIR/$1.c -lm
+    gcc -Wall -Wa,--execstack -o binaryC $SCRIPT_DIR/$1.c
     valgrind -q --undef-value-errors=no --leak-check=full binaryC 
     rm -f binaryC
 else
