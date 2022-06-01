@@ -35,9 +35,3 @@ int sum_square(int n)
 
     return sum;
 }
-
-int main(void)
-{
-
-    return 0;
-}
