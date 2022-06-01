@@ -1,15 +1,37 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-int testCall(){
-    int a=2;
-    a+=2;
+int return_constant(int a)
+{
     return a;
 }
 
+int inc_constant(int a)
+{
+    return a + 1;
+}
 
-int main(void){
-    int b = testCall();
-    b+=b;
-    
-    return 0;
+int calculate_factorial(int a)
+{
+    if (a == 0)
+        return 1;
+    else
+        return a * calculate_factorial(a - 1);
+}
+
+int number_square(int a)
+{
+    return a * a;
+}
+
+int sum_square(int n)
+{
+    int sum = 0;
+
+    for (int i = 1; i <= n; i++)
+    {
+        sum += number_square(i);
+    }
+
+    return sum;
 }
