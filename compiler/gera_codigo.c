@@ -18,7 +18,7 @@ byte *bufferToMachineCode(string buffer);
 void runMachineCode(byte *lbs, int size);
 byte *generateFunctionHeader(int size);
 byte *generateFunctionFooter();
-string *brakeIntoLines(string buffer,int *size);
+string *brakeInto(string buffer,int *size,char c);
 byte *interpretLine(string line, int *size);
 
 int sizeOfFile(FILE *F) // Funcao que retorna o tamanho de um arquivo
@@ -50,18 +50,18 @@ byte *pushMachineCode(byte *array, byte *code, int *sizeArray, int sizeCode)
     return array;
 }
 
-string * brakeIntoLines(string buffer, int *size){ // Funcao que divide o buffer em um array de linhas
-    string * lines = malloc(sizeof(string) * 30);
-    int lastLineOn =0;
-    for(int i = 0;i<strlen(buffer);i++){
-        if(buffer[i] == '\n'){
-            if(sizeof(lines) / sizeof(string) == lastLineOn){
-                lines = realloc(lines, (sizeof(lines) / sizeof(string))* 2);
+string * brakeInto(string buffer, int *size,char c){ // Funcao que divide o buffer em um array de linhas
+    string * lines = malloc(sizeof(string) * 30); // aloca um array de string com 30 posicoes
+    int lastLineOn = 0 ; // variavel que guarda o ultimo indice da linha
+    for(int i = 0;i<strlen(buffer);i++){ // loop que percorre o buffer
+        if(buffer[i] == c){ // se encontrar o marcador de fim da string
+            if(sizeof(lines) / sizeof(string) >= (*size)-1){ //se o array de linhas estiver cheio
+                lines = realloc(lines, (sizeof(lines) / sizeof(string))* 2); // aloca um array de string com dobro de tamanho
             }
-            lines[*size] = malloc(sizeof(char) * (i-lastLineOn));
-            strncpy(lines[*size],buffer+lastLineOn,i-lastLineOn);
-            lastLineOn = i+1;
-            (*size)++;
+            lines[*size] = malloc(sizeof(char) * (i-lastLineOn)); // aloca um array de char com o tamanho da linha
+            strncpy(lines[*size],buffer+lastLineOn,i-lastLineOn); // copia a linha para o array de linhas
+            lastLineOn = i+1; // atualiza o ultimo indice da linha
+            (*size)++; // incrementa o tamanho do array de linhas
         }
     }
     return lines;
@@ -72,74 +72,22 @@ byte *bufferToMachineCode(string buffer) //Funcao que transforma um buffer em co
     int maxSize = sizeof(buffer / sizeof(char)); // pega o tamanho do buffer
     byte *machineCode = (byte *)malloc(maxSize * 5); //aloca um tamanho para o buffer
     int *functions = malloc(sizeof(int)*5); //array com os tamanhos das funcoes
-    int numberOfLines = 0;
-    string *s = brakeIntoLines(buffer,&numberOfLines); // pega as linhas do buffer
+    int numberOfLines = 0; // variavel que guarda o numero de linhas do buffer
+    string *s = brakeInto(buffer,&numberOfLines,'\n'); // pega as linhas do buffer
     int trueSize = 0; // tamanho do codigo de maquina ate agora
     int i;
     
-    for (i = 0; i < strlen(s); i++)
+    for (i = 0; i < numberOfLines; i++) // loop que percorre as linhas do buffer
     {
         int codeSize;
-        byte *code = interpretLine(s[i], &codeSize, functions);
-        if(trueSize + codeSize >= maxSize){
+        byte *code = interpretLine(s[i], &codeSize, functions); // pega o codigo de maquina da linha
+        if(trueSize + codeSize >= maxSize){ // se o codigo de maquina for maior que o tamanho do buffer
             maxSize *= 2;
-            machineCode = (byte *)realloc(machineCode, maxSize);
+            machineCode = (byte *)realloc(machineCode, maxSize); // aloca um tamanho do buffer dobrado
         }
-        machineCode = pushMachineCode(machineCode, code, trueSize, codeSize);
+        machineCode = pushMachineCode(machineCode, code, trueSize, codeSize); // coloca o codigo de maquina no buffer
         // free(code);
     }
-    free(s);
+    free(s); //libera o array de linhas
     return machineCode;
-}
-
-string *brakeWords(string *s)
-{
-    string *words = (string *)malloc(sizeof(string) * strlen(s));
-    int i = 0;
-    int j = 0;
-    while (i < strlen(s))
-    {
-        if (s[i] == ' ')
-        {
-            words[j] = (string)malloc(sizeof(char) * i);
-            strncpy(words[j], s, i);
-            j++;
-            i++;
-        }
-        else
-        {
-            i++;
-        }
-    }
-    return words;
-}
-
-
-
-byte *interpretLine(string line, int *size, int *lastFunction)
-{
-    string *words = brakeWords(line);
-    char *firstChar = line;
-    switch (firstChar[0])
-    {
-    case 'f':
-        // function
-        byte *res = {};
-        brake;
-    case 'v':
-        // assignment
-        brake;
-    case 'r':
-        // return
-        brake;
-    case 'z':
-        // return zero
-        brake;
-    case 'e':
-        // end
-        brake;
-    case 'c':
-        // call
-        brake;
-    }
 }
