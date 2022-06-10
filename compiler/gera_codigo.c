@@ -1,3 +1,4 @@
+
 /*Eduardo Dantas Luna 2111484 3WA*/
 /*Gabriel de Oliveira Rosa Mariano Madeira 2111471 3WA*/
 
@@ -128,9 +129,3 @@ byte *interpretLine(string line, int *size, int *lastFunction)
         brake;
     }
 }
-
-/*
-LBS table:
-
-
-*/
