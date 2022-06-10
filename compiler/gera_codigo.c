@@ -12,53 +12,65 @@ typedef byte unsigned char;
 
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry);
 string generateBuffer(FILE *f);
-int sizeofFile(FILE *f);
+int sizeOfFile(FILE *f);
 byte *bufferToMachineCode(string buffer);
 void runMachineCode(byte *lbs, int size);
 byte *generateFunctionHeader(int size);
 byte *generateFunctionFooter();
-string *brakeIntoLines(string buffer);
+string *brakeIntoLines(string buffer,int *size);
 byte *interpretLine(string line, int *size);
 
-int sizeOfFile(FILE *F)
+int sizeOfFile(FILE *F) // Funcao que retorna o tamanho de um arquivo
 {
     int size;
-    fseek(f, 0, SEEK_END);
-    size = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    return size;
+    fseek(f, 0, SEEK_END); // vai ate o final do arquivo
+    size = ftell(f); //pega o tamanho do arquivo
+    fseek(f, 0, SEEK_SET); // volta ao inicio do arquivo
+    return size; //retorna o tamanho do arquivo
 }
 
-string generateBuffer(FILE *f)
+string generateBuffer(FILE *f)// Funcao que retorna um buffer para determinado arquivo
 {
-    int size = sizeofFile(f);
-    char *buffer = (char *)malloc(size);
-    fread(buffer, 1, size, f);
+    int size = sizeOfFile(f);// pega o tamanho do arquivo
+    char *buffer = (char *)malloc(size); //aloca o tamanho do arquivo
+    fread(buffer, 1, size, f); // le o arquivo e coloca no buffer
     return buffer;
 }
-
-byte *pushMachineCode(byte *array, byte *code, int *sizeArray, int sizeCode)
+/*
+    Funcao que pega um pedacoe de codigo de maquina e joga no final do buffer
+*/
+byte *pushMachineCode(byte *array, byte *code, int *sizeArray, int sizeCode) 
 {
-    for (int i = *sizeArray; i < *sizeArray + sizeCode; i++)
+    for (int i = *sizeArray; i < *sizeArray + sizeCode; i++) //loop que copia o codigo de maquina para o buffer
     {
         array[i] = code[i - *sizeArray];
     }
-    *sizeArray += sizeCode;
+    *sizeArray += sizeCode; // incrementa o tamanho do buffer
     return array;
 }
 
-byte *bufferToMachineCode(string buffer)
+string * brakeIntoLines(string buffer, int *size){ // Funcao que divide o buffer em um array de linhas
+    
+} 
+
+byte *bufferToMachineCode(string buffer) //Funcao que transforma um buffer em codigo de maquina
 {
-    int maxSize = sizeof(buffer / sizeof(char));
-    byte *machineCode = (byte *)malloc(maxSize * MAX_MACHINE_CODE_SIZE);
-    string *s = brakeIntoLines(buffer);
-    int trueSize = 0;
+    int maxSize = sizeof(buffer / sizeof(char)); // pega o tamanho do buffer
+    byte *machineCode = (byte *)malloc(maxSize * 5); //aloca um tamanho para o buffer
+    int *functions = malloc(sizeof(int)*5); //array com os tamanhos das funcoes
+    int numberOfLines = 0;
+    string *s = brakeIntoLines(buffer,&numberOfLines); // pega as linhas do buffer
+    int trueSize = 0; // tamanho do codigo de maquina ate agora
     int i;
-    int lastFunction = 0;
+    
     for (i = 0; i < strlen(s); i++)
     {
         int codeSize;
-        byte *code = interpretLine(s[i], &codeSize, &lastFunction);
+        byte *code = interpretLine(s[i], &codeSize, functions);
+        if(trueSize + codeSize >= maxSize){
+            maxSize *= 2;
+            machineCode = (byte *)realloc(machineCode, maxSize);
+        }
         machineCode = pushMachineCode(machineCode, code, trueSize, codeSize);
         // free(code);
     }
@@ -86,6 +98,8 @@ string *brakeWords(string *s)
     }
     return words;
 }
+
+
 
 byte *interpretLine(string line, int *size, int *lastFunction)
 {
