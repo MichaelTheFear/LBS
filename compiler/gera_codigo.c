@@ -51,7 +51,20 @@ byte *pushMachineCode(byte *array, byte *code, int *sizeArray, int sizeCode)
 }
 
 string * brakeIntoLines(string buffer, int *size){ // Funcao que divide o buffer em um array de linhas
-    
+    string * lines = malloc(sizeof(string) * 30);
+    int lastLineOn =0;
+    for(int i = 0;i<strlen(buffer);i++){
+        if(buffer[i] == '\n'){
+            if(sizeof(lines) / sizeof(string) == lastLineOn){
+                lines = realloc(lines, (sizeof(lines) / sizeof(string))* 2);
+            }
+            lines[*size] = malloc(sizeof(char) * (i-lastLineOn));
+            strncpy(lines[*size],buffer+lastLineOn,i-lastLineOn);
+            lastLineOn = i+1;
+            (*size)++;
+        }
+    }
+    return lines;
 } 
 
 byte *bufferToMachineCode(string buffer) //Funcao que transforma um buffer em codigo de maquina
@@ -75,6 +88,7 @@ byte *bufferToMachineCode(string buffer) //Funcao que transforma um buffer em co
         machineCode = pushMachineCode(machineCode, code, trueSize, codeSize);
         // free(code);
     }
+    free(s);
     return machineCode;
 }
 
