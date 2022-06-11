@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 
 int function1(int x)
 {
@@ -8,4 +7,10 @@ int function1(int x)
 
 int function2(int y){
     return y + 2;
+}
+
+int main(void){
+    int i;
+    i = function1(2);
+    printf("%d\n", i);
 }
