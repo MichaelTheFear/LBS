@@ -1,0 +1,41 @@
+v0 -> %esi
+v1 -> %edx
+v2 -> %ecx
+v3 -> %r8d
+v4 -> %r9d
+p0 -> %edi
+
+
+
+/*
+function
+v4 = $1 + $2
+ret v4
+end
+
+pushq %rbp
+movq %rsp, %rbp
+movl $1, %r9d
+addl $2, %r9d
+movl %r9d, %eax
+popq %rbp
+ret
+
+________________
+function
+
+pushq %rb
+movq %rsp, %rbp
+________________
+v4 = $1 + $2
+
+movl $1, %r9d
+addl $2, %r9d
+________________
+ret v4
+end
+
+movl %r9d, %eax
+popq %rbp
+ret
+*/

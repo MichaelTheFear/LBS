@@ -1,0 +1,7 @@
+#!/bin/bash
+
+SCRIPT_DIR=`pwd`
+
+gcc -c $SCRIPT_DIR/$1.s
+objdump -d main.o
+rm main.o

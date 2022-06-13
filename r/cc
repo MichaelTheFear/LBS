@@ -1,0 +1,13 @@
+#!/bin/bash
+
+SCRIPT_DIR=`pwd`
+EXISTS=`ls $SCRIPT_DIR/$1.c`
+
+if [ $EXISTS ]  
+then
+    gcc -Wall -Wa,--execstack -o binaryC $SCRIPT_DIR/$1.c
+    valgrind -q --undef-value-errors=no --leak-check=full ./binaryC
+    rm -f binaryC
+else
+    echo "404 - File not found"
+fi

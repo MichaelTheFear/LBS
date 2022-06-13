@@ -4,7 +4,7 @@ function1:
 	movq	%rsp, %rbp
 	movl	%edi, -4(%rbp)
 	movl	-4(%rbp), %eax
-	addl	$1, %eax
+	addl	$3, %eax
 	popq	%rbp
 	ret
 function2:
@@ -15,10 +15,8 @@ function2:
 	addl	$2, %eax
 	popq	%rbp
 	ret
-	.size	function2, .-function2
-	.section	.rodata
 .LC0:
-	.string	"%d\n"
+	.string	"Resultado assembly: %d\n"
 	.text
 	.globl	main
 	.type	main, @function
@@ -38,6 +36,3 @@ main:
 	movl	$0, %eax
 	leave
 	ret
-	.size	main, .-main
-	.ident	"GCC: (Debian 11.2.0-16) 11.2.0"
-	.section	.note.GNU-stack,"",@progbits

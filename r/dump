@@ -1,0 +1,9 @@
+#!/bin/bash
+
+SCRIPT_DIR=`pwd`
+
+gcc -S -fno-asynchronous-unwind-tables  $SCRIPT_DIR/$1.c
+gcc -c playground.s
+objdump -d playground.o
+rm playground.s
+rm playground.o

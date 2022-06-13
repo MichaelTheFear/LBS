@@ -1,7 +1,0 @@
-# !/bin/bash
-
-gcc -S -fno-asynchronous-unwind-tables playground.c
-
-objdump -d playground.o
-rm playground.s
-rm playground.o

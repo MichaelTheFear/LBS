@@ -1,0 +1,7 @@
+#!/bin/bash
+
+SCRIPT_DIR=`pwd`
+
+gcc -Wall -Wa,--execstack -o playgroundASM.o  $SCRIPT_DIR/$1.s
+valgrind -q --undef-value-errors=no --leak-check=full ./playgroundASM.o
+rm playgroundASM.o
