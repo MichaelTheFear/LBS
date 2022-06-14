@@ -16,10 +16,54 @@ string generateBuffer(FILE *f);
 int sizeOfFile(FILE *f);
 byte *bufferToMachineCode(string buffer);
 void runMachineCode(byte *lbs, int size);
-byte *generateFunctionHeader(int size);
+
+byte *generateFunctionHeader();
 byte *generateFunctionFooter();
+byte *generateCall(int distance,int upOrDown);
+byte *generateZret(int varOrConst, int value,int distanceToLabel);
+byte *generateSum(int varOrConst1, int varOrConst2,int value1,int value2);
+byte *generateSub(int varOrConst1, int varOrConst2,int value1,int value2);
+byte *generateMul(int varOrConst1, int varOrConst2,int value1,int value2);
+byte *generateReturn(int varOrConst, int value);
+byte *generateAssigment(
+    int varOrConst1,int value1,
+    int varOrConst2,int value2,
+    int valueTo, char operation
+);
+
+int calculateDistanceToFunction(int currentIndex, int functionIndex);
 string *brakeInto(string buffer,int *size,char c);
 byte *interpretLine(string line, int *size);
+byte *littleThatEndian(byte* bytes,int fillFF);
+byte *intToBytes(int x);
+
+/* bytes equivalentes a:
+    pushq %rbp
+    mov %rsp, %rbp
+*/
+byte* generateFunctionHeader(){
+    byte header[] = {0x55,0x48,0x89,0xe5}; 
+    return header;
+}
+/* bytes equivalentes a:
+    popq %rbp
+    ret
+*/
+
+byte* generateFunctionFooter(){
+    byte footer[] = {0x53,0xc3}; 
+    return footer;
+}
+
+
+byte* generateAssigment(int varOrConst1,int value1,int varOrConst2,int value2,int valueTo, char operation){
+    byte *codeOp;
+    
+
+}
+
+
+
 
 int sizeOfFile(FILE *F) // Funcao que retorna o tamanho de um arquivo
 {

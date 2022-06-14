@@ -1,0 +1,73 @@
+mov
+
+caso especial rax = 0 
+
+              y    I J
+v0 -> %rcx -> 1 -> c 8
+v1 -> %rdx -> 2 -> d 0 
+v2 -> %rsi -> 6 -> f 0
+p0 -> %rdi -> 7 -> f 8
+w = 8 , v = 8 , m = 0
+              y     I J
+v3 -> %r8d -> 15 -> c 0
+v4 -> %r9d -> 16 -> c 8
+w = c , v = 9, m = 1
+
+4(W+m) 89 I(J+Y) No caso de registro para registro  
+
+No caso as somas geram um digito so 
+
+4V c7 c(0+y+m) NN NN NN NN
+
+===========================
+add
+
+caso especial rax -> 48 05 NN NN NN NN
+
+4V 81 c(0+y) NN NN NN NN
+
+===========================
+sub
+
+caso especial rax => 48 2d NN NN NN NN
+
+4V 81 e(8+y+m) NN NN NN NN
+
+===========================
+imul
+
+tabela K
+rax e r8 -> c0
+rcx e r9 -> c9
+rdx -> d2
+rsi -> f6
+rdi -> ff
+
+
+4(w+m) 69 KK NN NN NN NN 
+
+jump e call 
+No caso jump e call tudo que eles fazem é contar
+os bytes ate o byte que ele quer chamar
+No caso do call se estiver para cima dele , ele preenche os
+bytes vazios com FF e caso estejam para baixo, com 00
+Nao iremos nos incomodar com jumps pra cima entao as contas
+sao so de quantos sao necessarios ate chegar no local de jump
+
+exemplo de call para cima
+e8 fa ff ff ff
+
+exemplo de call para baixo
+e8 fa 00 00 00
+
+exemplo de jz (jump zero que é o unico jump necessario)
+74 fa
+
+
+Uma peça muito importante:
+
+ao fazer uma operação aritimetica em Assembly
+o programa rescreve o segundo registro com o resultado
+para isso teriamos que fazer um mov para rax pois ele pode
+ser utilizado de auxilar ja que vai ser sobreescrito sempre
+no retorno da função

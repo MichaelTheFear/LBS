@@ -1,0 +1,327 @@
+
+main.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <function1>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 83 ff 00          	cmp    $0x0,%rdi
+   8:	74 13                	je     1d <r0>
+   a:	48 83 ef 01          	sub    $0x1,%rdi
+   e:	48 83 ff 00          	cmp    $0x0,%rdi
+  12:	74 12                	je     26 <r1>
+  14:	48 c7 c0 03 00 00 00 	mov    $0x3,%rax
+  1b:	5d                   	pop    %rbp
+  1c:	c3                   	ret    
+
+000000000000001d <r0>:
+  1d:	48 c7 c0 0a 00 00 00 	mov    $0xa,%rax
+  24:	5d                   	pop    %rbp
+  25:	c3                   	ret    
+
+0000000000000026 <r1>:
+  26:	48 c7 c0 14 00 00 00 	mov    $0x14,%rax
+  2d:	5d                   	pop    %rbp
+  2e:	c3                   	ret    
+  
+main.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <function1>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 89 f9             	mov    %rdi,%rcx
+   7:	48 83 f9 00          	cmp    $0x0,%rcx
+   b:	74 13                	je     20 <r0>
+   d:	48 83 e9 01          	sub    $0x1,%rcx
+  11:	48 83 f9 00          	cmp    $0x0,%rcx
+  15:	74 12                	je     29 <r1>
+  17:	48 c7 c0 03 00 00 00 	mov    $0x3,%rax
+  1e:	5d                   	pop    %rbp
+  1f:	c3                   	ret    
+
+0000000000000020 <r0>:
+  20:	48 c7 c0 0a 00 00 00 	mov    $0xa,%rax
+  27:	5d                   	pop    %rbp
+  28:	c3                   	ret    
+
+0000000000000029 <r1>:
+  29:	48 c7 c0 14 00 00 00 	mov    $0x14,%rax
+  30:	5d                   	pop    %rbp
+  31:	c3                   	ret    
+
+main.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <function1>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 89 f9             	mov    %rdi,%rcx
+   7:	48 83 f9 00          	cmp    $0x0,%rcx
+   b:	74 13                	je     20 <r0>
+   d:	48 83 e9 01          	sub    $0x1,%rcx
+  11:	48 83 f9 00          	cmp    $0x0,%rcx
+  15:	74 12                	je     29 <r1>
+  17:	48 c7 c0 03 00 00 00 	mov    $0x3,%rax
+  1e:	5d                   	pop    %rbp
+  1f:	c3                   	ret    
+
+0000000000000020 <r0>:
+  20:	48 c7 c0 0a 00 00 00 	mov    $0xa,%rax
+  27:	5d                   	pop    %rbp
+  28:	c3                   	ret    
+
+0000000000000029 <r1>:
+  29:	48 c7 c0 14 00 00 00 	mov    $0x14,%rax
+  30:	5d                   	pop    %rbp
+  31:	c3                   	ret    
+
+main.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <function1>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 89 f9             	mov    %rdi,%rcx
+   7:	48 83 f9 00          	cmp    $0x0,%rcx
+   b:	74 17                	je     24 <r0>
+   d:	48 83 e9 01          	sub    $0x1,%rcx
+  11:	48 83 e9 01          	sub    $0x1,%rcx
+  15:	48 83 f9 00          	cmp    $0x0,%rcx
+  19:	74 12                	je     2d <r1>
+  1b:	48 c7 c0 03 00 00 00 	mov    $0x3,%rax
+  22:	5d                   	pop    %rbp
+  23:	c3                   	ret    
+
+0000000000000024 <r0>:
+  24:	48 c7 c0 0a 00 00 00 	mov    $0xa,%rax
+  2b:	5d                   	pop    %rbp
+  2c:	c3                   	ret    
+
+000000000000002d <r1>:
+  2d:	48 c7 c0 14 00 00 00 	mov    $0x14,%rax
+  34:	5d                   	pop    %rbp
+  35:	c3                   	ret    
+
+main.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <function1>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 89 f9             	mov    %rdi,%rcx
+   7:	48 83 f9 00          	cmp    $0x0,%rcx
+   b:	74 1b                	je     28 <r0>
+   d:	48 83 e9 01          	sub    $0x1,%rcx
+  11:	48 83 e9 01          	sub    $0x1,%rcx
+  15:	48 83 f9 00          	cmp    $0x0,%rcx
+  19:	74 16                	je     31 <r1>
+  1b:	48 83 e9 01          	sub    $0x1,%rcx
+  1f:	48 c7 c0 03 00 00 00 	mov    $0x3,%rax
+  26:	5d                   	pop    %rbp
+  27:	c3                   	ret    
+
+0000000000000028 <r0>:
+  28:	48 c7 c0 0a 00 00 00 	mov    $0xa,%rax
+  2f:	5d                   	pop    %rbp
+  30:	c3                   	ret    
+
+0000000000000031 <r1>:
+  31:	48 c7 c0 14 00 00 00 	mov    $0x14,%rax
+  38:	5d                   	pop    %rbp
+  39:	c3                   	ret    
+
+
+
+
+
+
+
+main.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <function1>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 89 f9             	mov    %rdi,%rcx
+   7:	48 83 f9 00          	cmp    $0x0,%rcx
+   b:	74 1b                	je     28 <r0>
+   d:	48 83 e9 01          	sub    $0x1,%rcx
+  11:	48 83 e9 01          	sub    $0x1,%rcx
+  15:	48 83 f9 00          	cmp    $0x0,%rcx
+  19:	74 16                	je     31 <r1>
+  1b:	48 83 e9 01          	sub    $0x1,%rcx
+  1f:	48 c7 c0 03 00 00 00 	mov    $0x3,%rax
+  26:	5d                   	pop    %rbp
+  27:	c3                   	ret    
+
+0000000000000028 <r0>:
+  28:	48 c7 c0 0a 00 00 00 	mov    $0xa,%rax
+  2f:	5d                   	pop    %rbp
+  30:	c3                   	ret    
+
+0000000000000031 <r1>:
+  31:	48 c7 c0 14 00 00 00 	mov    $0x14,%rax
+  38:	5d                   	pop    %rbp
+  39:	c3                   	ret    
+
+000000000000003a <function2>:
+  3a:	55                   	push   %rbp
+  3b:	48 89 e5             	mov    %rsp,%rbp
+  3e:	48 83 ff 00          	cmp    $0x0,%rdi
+  42:	74 0e                	je     52 <r2>
+  44:	e8 b7 ff ff ff       	call   0 <function1>
+  49:	48 c7 c0 09 00 00 00 	mov    $0x9,%rax
+  50:	5d                   	pop    %rbp
+  51:	c3                   	ret    
+
+0000000000000052 <r2>:
+  52:	48 c7 c0 13 00 00 00 	mov    $0x13,%rax
+  59:	5d                   	pop    %rbp
+  5a:	c3                   	ret    
+
+
+
+
+
+
+
+
+main.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <function1>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 89 f9             	mov    %rdi,%rcx
+   7:	48 83 f9 00          	cmp    $0x0,%rcx
+   b:	74 1b                	je     28 <r0>
+   d:	48 83 e9 01          	sub    $0x1,%rcx
+  11:	48 83 e9 01          	sub    $0x1,%rcx
+  15:	48 83 f9 00          	cmp    $0x0,%rcx
+  19:	74 16                	je     31 <r1>
+  1b:	48 83 e9 01          	sub    $0x1,%rcx
+  1f:	48 c7 c0 03 00 00 00 	mov    $0x3,%rax
+  26:	5d                   	pop    %rbp
+  27:	c3                   	ret    
+
+0000000000000028 <r0>:
+  28:	48 c7 c0 0a 00 00 00 	mov    $0xa,%rax
+  2f:	5d                   	pop    %rbp
+  30:	c3                   	ret    
+
+0000000000000031 <r1>:
+  31:	48 c7 c0 14 00 00 00 	mov    $0x14,%rax
+  38:	5d                   	pop    %rbp
+  39:	c3                   	ret    
+
+000000000000003a <function2>:
+  3a:	55                   	push   %rbp
+  3b:	48 89 e5             	mov    %rsp,%rbp
+  3e:	48 89 f9             	mov    %rdi,%rcx
+  41:	48 c7 c0 00 00 00 00 	mov    $0x0,%rax
+  48:	5d                   	pop    %rbp
+  49:	c3                   	ret    
+
+000000000000004a <function3>:
+  4a:	55                   	push   %rbp
+  4b:	48 89 e5             	mov    %rsp,%rbp
+  4e:	48 83 ff 00          	cmp    $0x0,%rdi
+  52:	74 0e                	je     62 <r2>
+  54:	e8 a7 ff ff ff       	call   0 <function1>
+  59:	48 c7 c0 09 00 00 00 	mov    $0x9,%rax
+  60:	5d                   	pop    %rbp
+  61:	c3                   	ret    
+
+0000000000000062 <r2>:
+  62:	e8 d3 ff ff ff       	call   3a <function2>
+  67:	48 c7 c0 13 00 00 00 	mov    $0x13,%rax
+  6e:	5d                   	pop    %rbp
+  6f:	c3                   	ret    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+main.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <function1>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 89 f9             	mov    %rdi,%rcx
+   7:	48 83 f9 00          	cmp    $0x0,%rcx
+   b:	74 20                	je     2d <r0>
+   d:	e8 2d 00 00 00       	call   3f <function2>
+  12:	48 83 e9 01          	sub    $0x1,%rcx
+  16:	48 83 e9 01          	sub    $0x1,%rcx
+  1a:	48 83 f9 00          	cmp    $0x0,%rcx
+  1e:	74 16                	je     36 <r1>
+  20:	48 83 e9 01          	sub    $0x1,%rcx
+  24:	48 c7 c0 03 00 00 00 	mov    $0x3,%rax
+  2b:	5d                   	pop    %rbp
+  2c:	c3                   	ret    
+
+000000000000002d <r0>:
+  2d:	48 c7 c0 0a 00 00 00 	mov    $0xa,%rax
+  34:	5d                   	pop    %rbp
+  35:	c3                   	ret    
+
+0000000000000036 <r1>:
+  36:	48 c7 c0 14 00 00 00 	mov    $0x14,%rax
+  3d:	5d                   	pop    %rbp
+  3e:	c3                   	ret    
+
+000000000000003f <function2>:
+  3f:	55                   	push   %rbp
+  40:	48 89 e5             	mov    %rsp,%rbp
+  43:	e8 0c 00 00 00       	call   54 <function3>
+  48:	48 89 f9             	mov    %rdi,%rcx
+  4b:	48 c7 c0 00 00 00 00 	mov    $0x0,%rax
+  52:	5d                   	pop    %rbp
+  53:	c3                   	ret    
+
+0000000000000054 <function3>:
+  54:	55                   	push   %rbp
+  55:	48 89 e5             	mov    %rsp,%rbp
+  58:	48 83 ff 00          	cmp    $0x0,%rdi
+  5c:	74 0e                	je     6c <r2>
+  5e:	e8 9d ff ff ff       	call   0 <function1>
+  63:	48 c7 c0 09 00 00 00 	mov    $0x9,%rax
+  6a:	5d                   	pop    %rbp
+  6b:	c3                   	ret    
+
+000000000000006c <r2>:
+  6c:	48 c7 c0 13 00 00 00 	mov    $0x13,%rax
+  73:	5d                   	pop    %rbp
+  74:	c3                   	ret    
