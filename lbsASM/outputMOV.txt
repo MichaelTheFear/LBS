@@ -1,0 +1,58 @@
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   
+   4:	48 89 c8             	mov    %rcx,%rax
+   7:	48 89 c9             	mov    %rcx,%rcx
+   a:	48 89 ca             	mov    %rcx,%rdx
+   d:	48 89 ce             	mov    %rcx,%rsi
+  10:	48 89 cf             	mov    %rcx,%rdi
+  13:	49 89 c8             	mov    %rcx,%r8
+  16:	49 89 c9             	mov    %rcx,%r9
+  
+  19:	48 89 d0             	mov    %rdx,%rax
+  1c:	48 89 d1             	mov    %rdx,%rcx
+  1f:	48 89 d6             	mov    %rdx,%rsi
+  22:	48 89 d7             	mov    %rdx,%rdi
+  25:	49 89 d0             	mov    %rdx,%r8
+  28:	49 89 d1             	mov    %rdx,%r9
+  
+  2b:	48 89 f0             	mov    %rsi,%rax
+  2e:	48 89 f1             	mov    %rsi,%rcx
+  31:	48 89 f2             	mov    %rsi,%rdx
+  34:	48 89 f7             	mov    %rsi,%rdi
+  37:	49 89 f0             	mov    %rsi,%r8
+  3a:	49 89 f1             	mov    %rsi,%r9
+  
+  3d:	48 89 f8             	mov    %rdi,%rax
+  40:	48 89 f9             	mov    %rdi,%rcx
+  43:	48 89 fa             	mov    %rdi,%rdx
+  46:	48 89 fe             	mov    %rdi,%rsi
+  49:	49 89 f8             	mov    %rdi,%r8
+  4c:	49 89 f9             	mov    %rdi,%r9
+  
+  4f:	4c 89 c0             	mov    %r8,%rax
+  52:	4c 89 c1             	mov    %r8,%rcx
+  55:	4c 89 c2             	mov    %r8,%rdx
+  58:	4c 89 c6             	mov    %r8,%rsi
+  5b:	4c 89 c7             	mov    %r8,%rdi
+  5e:	4d 89 c0             	mov    %r8,%r8
+  61:	4d 89 c1             	mov    %r8,%r9
+  
+  64:	4c 89 c8             	mov    %r9,%rax
+  67:	4c 89 c9             	mov    %r9,%rcx
+  6a:	4c 89 ca             	mov    %r9,%rdx
+  6d:	4c 89 ce             	mov    %r9,%rsi
+  70:	4c 89 cf             	mov    %r9,%rdi
+  73:	4d 89 c8             	mov    %r9,%r8
+
+  76:	48 c7 c0 01 00 00 00 	mov    $0x1,%rax
+  7d:	48 c7 c1 01 00 00 00 	mov    $0x1,%rcx
+  84:	48 c7 c2 01 00 00 00 	mov    $0x1,%rdx
+  8b:	48 c7 c6 01 00 00 00 	mov    $0x1,%rsi
+  92:	48 c7 c7 01 00 00 00 	mov    $0x1,%rdi
+  99:	49 c7 c0 01 00 00 00 	mov    $0x1,%r8
+  a0:	49 c7 c1 01 00 00 00 	mov    $0x1,%r9
+  
+  a7:	4c 89 c8             	mov    %r9,%rax
+  aa:	5d                   	pop    %rbp
+  ab:	c3                   	ret    

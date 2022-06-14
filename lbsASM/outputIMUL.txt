@@ -1,0 +1,11 @@
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 69 c0 ff ff 00 00 	imul   $0xffff,%rax,%rax
+   b:	48 69 c9 ff ff 00 00 	imul   $0xffff,%rcx,%rcx
+  12:	48 69 d2 ff ff 00 00 	imul   $0xffff,%rdx,%rdx
+  19:	48 69 f6 ff ff 00 00 	imul   $0xffff,%rsi,%rsi
+  20:	48 69 ff ff ff 00 00 	imul   $0xffff,%rdi,%rdi
+  27:	4d 69 c0 ff ff 00 00 	imul   $0xffff,%r8,%r8
+  2e:	4d 69 c9 ff ff 00 00 	imul   $0xffff,%r9,%r9
+  35:	5d                   	pop    %rbp
+  36:	c3                   	ret    

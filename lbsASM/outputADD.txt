@@ -1,0 +1,31 @@
+
+main.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <function1>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 05 ff ff 00 00    	add    $0xffff,%rax
+   a:	48 81 c1 ff ff 00 00 	add    $0xffff,%rcx
+  11:	48 81 c2 ff ff 00 00 	add    $0xffff,%rdx
+  18:	48 81 c6 ff ff 00 00 	add    $0xffff,%rsi
+  1f:	48 81 c7 ff ff 00 00 	add    $0xffff,%rdi
+  26:	49 81 c0 ff ff 00 00 	add    $0xffff,%r8
+  2d:	49 81 c1 ff ff 00 00 	add    $0xffff,%r9
+  34:	5d                   	pop    %rbp
+  35:	c3                   	ret    
+
+main.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <function1>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	48 c7 c0 01 00 00 00 	mov    $0x1,%rax
+   b:	48 05 ff ff 00 00    	add    $0xffff,%rax
+  11:	5d                   	pop    %rbp
+  12:	c3                   	ret    
