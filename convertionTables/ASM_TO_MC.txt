@@ -9,8 +9,8 @@ v2 -> %rsi -> 6 -> f 0
 p0 -> %rdi -> 7 -> f 8
 w = 8 , v = 8 , m = 0
               y     I J
-v3 -> %r8d -> 15 -> c 0
-v4 -> %r9d -> 16 -> c 8
+v3 -> %r8 -> 15 -> c 0
+v4 -> %r9 -> 16 -> c 8
 w = c , v = 9, m = 1
 
 4(W+m) 89 I(J+Y) No caso de registro para registro  
@@ -71,3 +71,6 @@ o programa rescreve o segundo registro com o resultado
 para isso teriamos que fazer um mov para rax pois ele pode
 ser utilizado de auxilar ja que vai ser sobreescrito sempre
 no retorno da função
+
+
+

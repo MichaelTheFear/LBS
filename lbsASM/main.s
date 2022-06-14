@@ -1,49 +1,61 @@
 function1:
 pushq %rbp
-movq %rsp, %rbp
-mov %rdi, %rcx
-cmp $0, %rcx
-jz r0
-call function2
-sub $1, %rcx
-sub $1, %rcx
-cmp $0, %rcx
-jz r1
-sub $1, %rcx
-mov $3, %rax
-popq %rbp
-ret	
-r0:
-mov $10, %rax
-popq %rbp
-ret
-r1:
-mov $20, %rax
-popq %rbp
-ret
+mov %rsp, %rbp
+
+imul %rcx, %rax
+imul %rdx, %rax
+imul %rsi, %rax
+imul %rdi, %rax
+
+imul %rcx, %rcx
+imul %rdx, %rcx
+imul %rsi, %rcx
+imul %rdi, %rcx
+
+imul %rcx, %rdx
+imul %rdx, %rdx
+imul %rsi, %rdx
+imul %rdi, %rdx
+
+imul %rcx, %rsi
+imul %rdx, %rsi
+imul %rsi, %rsi
+imul %rdi, %rsi
+
+imul %rcx, %rdi
+imul %rdx, %rdi
+imul %rsi, %rdi
+imul %rdi, %rdi
 
 
-function2:
-pushq %rbp
-movq %rsp, %rbp
-call function3
-mov %rdi, %rcx
-mov $0, %rax
-popq %rbp
-ret
+imul %r8, %rax
+imul %r9, %rax
+
+imul %r8, %rcx
+imul %r9, %rcx
+
+imul %r8, %rdx
+imul %r9, %rdx
+
+imul %r8, %rsi
+imul %r9, %rsi
+
+imul %r8, %rdi
+imul %r9, %rdi
+
+imul %r8, %r8
+imul %r9, %r8
+imul %r8, %r9
+imul %r9, %r9
+
+imul $0xabcd, %rax
+imul $0xabcd, %rcx
+imul $0xabcd, %rdx
+imul $0xabcd, %rsi
+imul $0xabcd, %rdi
+imul $0xabcd, %r8
+imul $0xabcd, %r9
 
 
-function3:
-pushq %rbp
-movq %rsp, %rbp
-cmp $0, %rdi
-jz r2
-call function1
-mov $9, %rax
-popq %rbp
-ret
-
-r2:
-mov $19, %rax
 popq %rbp
 ret
