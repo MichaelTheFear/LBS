@@ -36,15 +36,6 @@ caso especial rax => 48 2d NN NN NN NN
 ===========================
 imul
 
-tabela K
-rax e r8 -> c0
-rcx e r9 -> c9
-rdx -> d2
-rsi -> f6
-rdi -> ff
-
-
-4(w+m) 69 KK NN NN NN NN 
 
 jump e call 
 No caso jump e call tudo que eles fazem é contar

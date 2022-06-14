@@ -12,30 +12,73 @@ typedef string char *;
 typedef byte unsigned char;
 
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry);
+void runMachineCode(byte *lbs, int size);
+byte *bufferToMachineCode(string buffer);
+byte *interpretLine(string line, int *size);
+
+//funcaoes de buffer
 string generateBuffer(FILE *f);
 int sizeOfFile(FILE *f);
-byte *bufferToMachineCode(string buffer);
-void runMachineCode(byte *lbs, int size);
 
-byte *generateFunctionHeader();
-byte *generateFunctionFooter();
-byte *generateCall(int distance,int upOrDown);
-byte *generateZret(int varOrConst, int value,int distanceToLabel);
-byte *generateSum(int varOrConst1, int varOrConst2,int value1,int value2);
-byte *generateSub(int varOrConst1, int varOrConst2,int value1,int value2);
-byte *generateMul(int varOrConst1, int varOrConst2,int value1,int value2);
-byte *generateReturn(int varOrConst, int value);
+// funcoes de geracao de codigo de maquina
+byte *generateFunctionHeader(); //TODO
+byte *generateFunctionFooter(); //TODO
+byte *generateCall(int distance,int upOrDown); //TODO
+byte *generateZret(int varOrConst, int value,int distanceToLabel); //TODO
+byte *generateSum(int varOrConst1, int varOrConst2,int value1,int value2); //TODO
+byte *generateSub(int varOrConst1, int varOrConst2,int value1,int value2); //TODO
+byte *generateMul(int varOrConst1, int varOrConst2,int value1,int value2); //TODO
+byte *generateReturn(int varOrConst, int value); //TODO
 byte *generateAssigment(
     int varOrConst1,int value1,
     int varOrConst2,int value2,
     int valueTo, char operation
-);
+); //TODO
 
-int calculateDistanceToFunction(int currentIndex, int functionIndex);
-string *brakeInto(string buffer,int *size,char c);
-byte *interpretLine(string line, int *size);
-byte *littleThatEndian(byte* bytes,int fillFF);
-byte *intToBytes(int x);
+//funcoes auxiliares
+string *brakeInto(string buffer,int *size,char c); //TODO M
+byte *littleThatEndian(byte* bytes,int fillFF); //TODO M
+byte *intToBytes(int x,int fillFF); //TODO M
+void *doubleSize(void *ptr,int* size,int condition);
+
+/*
+Dado uma string, retorna um array de strings, 
+usando o caracter c como separador.
+O tamanho do array é retornado em size.
+*/
+
+string *brakeInto(string buffer,int *size,char c){
+
+
+}
+/*
+Dado bytes, retorna um array de 4 bytes, em little Endian
+(basicamente o inverso do array).
+Se fillFF for 1, o resto do array é preenchido com 0xFF.
+Caso o contrario com 0x00.
+*/
+byte *littleThatEndian(){
+
+}
+/*
+Dados um inteiro, retorna um array de 4 bytes, em little Endian
+se fill FF for 1 o resto do array é preenchido com 0xFF.
+Caso contrario com 0x00.
+*/
+byte* intToBytes(int x,int fillFF){
+
+}
+
+/*
+    Dobra o tamanho de um array
+*/
+void *doubleSize(void* ptr,int * size,int condition){
+    if(condition){
+        *size *= 2;
+        ptr = realloc(ptr,*size);
+    }
+    return ptr;
+}
 
 /* bytes equivalentes a:
     pushq %rbp
@@ -54,15 +97,6 @@ byte* generateFunctionFooter(){
     byte footer[] = {0x53,0xc3}; 
     return footer;
 }
-
-
-byte* generateAssigment(int varOrConst1,int value1,int varOrConst2,int value2,int valueTo, char operation){
-    byte *codeOp;
-    
-
-}
-
-
 
 
 int sizeOfFile(FILE *F) // Funcao que retorna o tamanho de um arquivo
@@ -94,23 +128,9 @@ byte *pushMachineCode(byte *array, byte *code, int *sizeArray, int sizeCode)
     return array;
 }
 
-string * brakeInto(string buffer, int *size,char c){ // Funcao que divide o buffer em um array de linhas
-    string * lines = malloc(sizeof(string) * 30); // aloca um array de string com 30 posicoes
-    int lastLineOn = 0 ; // variavel que guarda o ultimo indice da linha
-    for(int i = 0;i<strlen(buffer);i++){ // loop que percorre o buffer
-        if(buffer[i] == c){ // se encontrar o marcador de fim da string
-            if(sizeof(lines) / sizeof(string) >= (*size)-1){ //se o array de linhas estiver cheio
-                lines = realloc(lines, (sizeof(lines) / sizeof(string))* 2); // aloca um array de string com dobro de tamanho
-            }
-            lines[*size] = malloc(sizeof(char) * (i-lastLineOn)); // aloca um array de char com o tamanho da linha
-            strncpy(lines[*size],buffer+lastLineOn,i-lastLineOn); // copia a linha para o array de linhas
-            lastLineOn = i+1; // atualiza o ultimo indice da linha
-            (*size)++; // incrementa o tamanho do array de linhas
-        }
-    }
-    return lines;
-} 
 
+
+/*
 byte *bufferToMachineCode(string buffer) //Funcao que transforma um buffer em codigo de maquina
 {
     int maxSize = sizeof(buffer / sizeof(char)); // pega o tamanho do buffer
@@ -125,13 +145,11 @@ byte *bufferToMachineCode(string buffer) //Funcao que transforma um buffer em co
     {
         int codeSize;
         byte *code = interpretLine(s[i], &codeSize, functions); // pega o codigo de maquina da linha
-        if(trueSize + codeSize >= maxSize){ // se o codigo de maquina for maior que o tamanho do buffer
-            maxSize *= 2;
-            machineCode = (byte *)realloc(machineCode, maxSize); // aloca um tamanho do buffer dobrado
-        }
+        doubleSize(machineCode,&maxSize,trueSize + codeSize >= maxSize);
         machineCode = pushMachineCode(machineCode, code, trueSize, codeSize); // coloca o codigo de maquina no buffer
         // free(code);
     }
     free(s); //libera o array de linhas
     return machineCode;
 }
+*/
