@@ -31,11 +31,20 @@ def filtering(arr: list):
     
     return arr
 
+def check(item:str):
+    for i in range(len(item)):
+        if item[i] not in "0123456789abcdefABCDEF":
+            return False
+    return True
+
+
 s1 = filtering(s1)
 s2 = filtering(s2)
 
+
+
 for item in s2:
-    if item not in s1:
+    if item not in s1 and check(item):
         res.append(item)
 
 

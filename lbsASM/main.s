@@ -1,7 +1,4 @@
-push %rbp
-mov %rsp, %rbp
-mov %rdi,%rsi
-imul $0x02, %rsi
-mov %rsi,%rax
+mov 0xFFF,%rax
 pop %rbp
 ret
+

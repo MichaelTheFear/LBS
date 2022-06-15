@@ -1,0 +1,3 @@
+./r/cc ASM_MC/runMachine
+./r/mc lbsASM/main
+./r/dumpASM lbsASM/main

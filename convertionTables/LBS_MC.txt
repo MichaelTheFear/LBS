@@ -1,0 +1,30 @@
+function
+
+pushq %rbp
+movq %rsp, %rbp
+
+{0x55,0x48,0x89,0xe5}
+
+========================
+
+end 
+
+popq %rbp
+ret
+
+{0x53,0xc3}
+
+========================
+
+ret YY
+
+mov YY, %rax
+
+se YY for registro:
+
+{0x48,0x89,YY}
+
+se YY for constante:
+
+
+
