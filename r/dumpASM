@@ -3,5 +3,4 @@
 SCRIPT_DIR=`pwd`
 
 gcc -c $SCRIPT_DIR/$1.s
-objdump -d main.o
-rm main.o
+objdump -d --no-show-raw-insn main.o

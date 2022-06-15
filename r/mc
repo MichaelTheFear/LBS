@@ -1,0 +1,8 @@
+#!/bin/bash
+SCRIPT_DIR=`pwd`
+
+gcc -c $SCRIPT_DIR/$1.s
+output1=`objdump -d main.o`
+output2=`objdump -d --no-show-raw-insn main.o`
+python3 $SCRIPT_DIR/r/format "$output2" "$output1"
+rm main.o

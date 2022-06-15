@@ -1,0 +1,42 @@
+#!/bin/python3
+import sys
+s1 = sys.argv[1]
+s2 = sys.argv[2]
+
+
+res = []
+
+s1 = s1.replace('\n', ' ')
+s2 = s2.replace('\n', ' ')
+s1 = s1.replace('\t', ' ')
+s2 = s2.replace('\t', ' ')
+s1 = s1.split(' ')
+s2 = s2.split(' ')
+
+def endGame(arr: list):
+    res = "{"
+    for i in range(len(arr)):
+        res += "0x"+arr[i]
+        if i != len(arr)-1:
+            res += ","
+    return res + "}"
+
+
+def filtering(arr: list):
+    try:
+        while True:
+            arr.remove('')
+    except ValueError:
+        pass
+    
+    return arr
+
+s1 = filtering(s1)
+s2 = filtering(s2)
+
+for item in s2:
+    if item not in s1:
+        res.append(item)
+
+
+print(endGame(res))
