@@ -7,11 +7,11 @@ v0 -> %rcx -> 1 -> c 8
 v1 -> %rdx -> 2 -> d 0 
 v2 -> %rsi -> 6 -> f 0
 p0 -> %rdi -> 7 -> f 8
-w = 8 , v = 8 , m = 0
+w = 8 , v = 8 , m = 0 , p = 8
               y     I J
 v3 -> %r8 -> 15 -> c 0
 v4 -> %r9 -> 16 -> c 8
-w = c , v = 9, m = 1
+w = c , v = 9, m = 1, p = d
 
 4(W+m) 89 I(J+Y) No caso de registro para registro  
 
@@ -35,6 +35,16 @@ caso especial rax => 48 2d NN NN NN NN
 
 ===========================
 imul
+
+caso const com registro
+
+4P 69 c(0+y+m) NN NN NN NN
+
+caso registro com registro
+
+%rax -> c1
+%rax + 0
+
 
 
 jump e call 
@@ -63,5 +73,42 @@ para isso teriamos que fazer um mov para rax pois ele pode
 ser utilizado de auxilar ja que vai ser sobreescrito sempre
 no retorno da função
 
+exemplo:
 
+function
+v2 = p0 * 2
+v1 = v2 + $1
+v2 = v2 + v1
+ret v2
+end
 
+; function
+pushq %rbp
+movq %rsp, %rbp
+
+; v2 = p0 * 2
+mov %rax, %rax
+imul $2, %rax
+mov %rax, %rdx
+
+; v1 = v2 + $1
+mov %rsi,%rax
+add %rax,$1
+mov %rax,%rdx
+
+; v2 = v2 + v1
+mov %rsi,%rax
+add %rdx,%rax
+mov %rax,%rdx
+
+; ret v2 
+mov %rdx,%rax
+
+;end
+popq %rbp
+ret
+
+{0x55, 0x48,0x89,0xe5} ; function
+{0x48,0x89,0xc0} ; v2 = p0 * 2
+
+{0x53,0xc3};end

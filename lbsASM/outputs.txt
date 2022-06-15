@@ -4,63 +4,11 @@ main.o:     file format elf64-x86-64
 
 Disassembly of section .text:
 
-0000000000000000 <function1>:
+0000000000000000 <.text>:
    0:	55                   	push   %rbp
    1:	48 89 e5             	mov    %rsp,%rbp
-
-   4:	48 0f af c1          	imul   %rcx,%rax
-   8:	48 0f af c2          	imul   %rdx,%rax
-   c:	48 0f af c6          	imul   %rsi,%rax
-  10:	48 0f af c7          	imul   %rdi,%rax
-  
-  14:	48 0f af c9          	imul   %rcx,%rcx
-  18:	48 0f af ca          	imul   %rdx,%rcx
-  1c:	48 0f af ce          	imul   %rsi,%rcx
-  20:	48 0f af cf          	imul   %rdi,%rcx
-  
-  24:	48 0f af d1          	imul   %rcx,%rdx
-  28:	48 0f af d2          	imul   %rdx,%rdx
-  2c:	48 0f af d6          	imul   %rsi,%rdx
-  30:	48 0f af d7          	imul   %rdi,%rdx
-  
-  34:	48 0f af f1          	imul   %rcx,%rsi
-  38:	48 0f af f2          	imul   %rdx,%rsi
-  3c:	48 0f af f6          	imul   %rsi,%rsi
-  40:	48 0f af f7          	imul   %rdi,%rsi
-  
-  44:	48 0f af f9          	imul   %rcx,%rdi
-  48:	48 0f af fa          	imul   %rdx,%rdi
-  4c:	48 0f af fe          	imul   %rsi,%rdi
-  50:	48 0f af ff          	imul   %rdi,%rdi
-  
-  54:	49 0f af c0          	imul   %r8,%rax
-  58:	49 0f af c1          	imul   %r9,%rax
-  
-  5c:	49 0f af c8          	imul   %r8,%rcx
-  60:	49 0f af c9          	imul   %r9,%rcx
-  
-  64:	49 0f af d0          	imul   %r8,%rdx
-  68:	49 0f af d1          	imul   %r9,%rdx
-  
-  6c:	49 0f af f0          	imul   %r8,%rsi
-  70:	49 0f af f1          	imul   %r9,%rsi
-  
-  74:	49 0f af f8          	imul   %r8,%rdi
-  78:	49 0f af f9          	imul   %r9,%rdi
-  
-  7c:	4d 0f af c0          	imul   %r8,%r8
-  80:	4d 0f af c1          	imul   %r9,%r8
-  
-  84:	4d 0f af c8          	imul   %r8,%r9
-  88:	4d 0f af c9          	imul   %r9,%r9
-  
-  8c:	48 69 c0 cd ab 00 00 	imul   $0xabcd,%rax,%rax
-  93:	48 69 c9 cd ab 00 00 	imul   $0xabcd,%rcx,%rcx
-  9a:	48 69 d2 cd ab 00 00 	imul   $0xabcd,%rdx,%rdx
-  a1:	48 69 f6 cd ab 00 00 	imul   $0xabcd,%rsi,%rsi
-  a8:	48 69 ff cd ab 00 00 	imul   $0xabcd,%rdi,%rdi
-  af:	4d 69 c0 cd ab 00 00 	imul   $0xabcd,%r8,%r8
-  b6:	4d 69 c9 cd ab 00 00 	imul   $0xabcd,%r9,%r9
- 
-  bd:	5d                   	pop    %rbp
-  be:	c3                   	ret    
+   4:	48 89 fe             	mov    %rdi,%rsi
+   7:	48 69 f6 80 00 00 00 	imul   $0x80,%rsi,%rsi
+   e:	48 89 f0             	mov    %rsi,%rax
+  11:	5d                   	pop    %rbp
+  12:	c3                   	ret    

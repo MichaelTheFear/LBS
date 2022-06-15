@@ -22,6 +22,18 @@ int inc_constant(int a)
     return a + 1;
 }
 
+/*
+    increment constant assembly and machine code
+  10:	f3 0f 1e fa          	endbr64 
+  14:	55                   	push   %rbp
+  15:	48 89 e5             	mov    %rsp,%rbp
+  18:	89 7d fc             	mov    %edi,-0x4(%rbp)
+  1b:	8b 45 fc             	mov    -0x4(%rbp),%eax
+  1e:	83 c0 01             	add    $0x1,%eax
+  21:	5d                   	pop    %rbp
+  22:	c3                   	ret    
+*/
+
 int calculate_factorial(int a)
 {
     if (a == 0)
@@ -30,10 +42,43 @@ int calculate_factorial(int a)
         return a * calculate_factorial(a - 1);
 }
 
+/*
+    calculate factorial assembly and machine code
+  23:	f3 0f 1e fa          	endbr64 
+  27:	55                   	push   %rbp
+  28:	48 89 e5             	mov    %rsp,%rbp
+  2b:	48 83 ec 10          	sub    $0x10,%rsp
+  2f:	89 7d fc             	mov    %edi,-0x4(%rbp)
+  32:	83 7d fc 00          	cmpl   $0x0,-0x4(%rbp)
+  36:	75 07                	jne    3f <calculate_factorial+0x1c>
+  38:	b8 01 00 00 00       	mov    $0x1,%eax
+  3d:	eb 11                	jmp    50 <calculate_factorial+0x2d>
+  3f:	8b 45 fc             	mov    -0x4(%rbp),%eax
+  42:	83 e8 01             	sub    $0x1,%eax
+  45:	89 c7                	mov    %eax,%edi
+  47:	e8 00 00 00 00       	call   4c <calculate_factorial+0x29>
+  4c:	0f af 45 fc          	imul   -0x4(%rbp),%eax
+  50:	c9                   	leave  
+  51:	c3                   	ret    
+*/
+
 int number_square(int a)
 {
     return a * a;
 }
+
+/*
+    number square assembly and machine code
+  52:	f3 0f 1e fa          	endbr64 
+  56:	55                   	push   %rbp
+  57:	48 89 e5             	mov    %rsp,%rbp
+  5a:	89 7d fc             	mov    %edi,-0x4(%rbp)
+  5d:	8b 45 fc             	mov    -0x4(%rbp),%eax
+  60:	0f af c0             	imul   %eax,%eax
+  63:	5d                   	pop    %rbp
+  64:	c3                   	ret    
+*/
+
 
 int sum_square(int n)
 {
@@ -46,3 +91,26 @@ int sum_square(int n)
 
     return sum;
 }
+
+/*
+    sum square assembly and machine code
+  65:	f3 0f 1e fa          	endbr64 
+  69:	55                   	push   %rbp
+  6a:	48 89 e5             	mov    %rsp,%rbp
+  6d:	48 83 ec 18          	sub    $0x18,%rsp
+  71:	89 7d ec             	mov    %edi,-0x14(%rbp)
+  74:	c7 45 f8 00 00 00 00 	movl   $0x0,-0x8(%rbp)
+  7b:	c7 45 fc 01 00 00 00 	movl   $0x1,-0x4(%rbp)
+  82:	eb 11                	jmp    95 <sum_square+0x30>
+  84:	8b 45 fc             	mov    -0x4(%rbp),%eax
+  87:	89 c7                	mov    %eax,%edi
+  89:	e8 00 00 00 00       	call   8e <sum_square+0x29>
+  8e:	01 45 f8             	add    %eax,-0x8(%rbp)
+  91:	83 45 fc 01          	addl   $0x1,-0x4(%rbp)
+  95:	8b 45 fc             	mov    -0x4(%rbp),%eax
+  98:	3b 45 ec             	cmp    -0x14(%rbp),%eax
+  9b:	7e e7                	jle    84 <sum_square+0x1f>
+  9d:	8b 45 f8             	mov    -0x8(%rbp),%eax
+  a0:	c9                   	leave  
+  a1:	c3                   	ret    
+*/
