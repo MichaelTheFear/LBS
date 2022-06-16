@@ -1,0 +1,10 @@
+#!/bin/bash
+
+pwd=`pwd`
+
+machineCode=`./r/mc lbsASM/main`
+sed -i "s/???/$machineCode/g" ASM_MC/runMachine.c
+echo "Compiling machine code: $machineCode"
+
+echo `./r/cc ASM_MC/runMachine`
+sed -i "s/$machineCode/???/g" ASM_MC/runMachine.c
