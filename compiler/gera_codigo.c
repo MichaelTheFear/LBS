@@ -48,6 +48,35 @@ O tamanho do array é retornado em size.
 
 string *brakeInto(string buffer, int *size, char c)
 {
+    string *array;
+    int i = 0, j = 0;
+
+    for (i = 0; i < strlen(buffer); i++)
+    {
+        if (buffer[i] == c)
+        {
+            j++;
+        }
+    }
+
+    array = (string *)malloc(sizeof(string) * j);
+    *size = j;
+
+    j = 0;
+    for (i = 0; i < strlen(buffer); i++)
+    {
+        if (buffer[i] == c)
+        {
+            array[j] = (string)malloc(sizeof(char) * i);
+            strncpy(array[j], buffer, i);
+            j++;
+
+            buffer += i + 1;
+            i = -1;
+        }
+    }
+
+    return array;
 }
 
 /*
