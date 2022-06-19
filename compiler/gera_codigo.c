@@ -27,7 +27,7 @@ typedef struct __var
     int isVar;
     /*
         0 - constante
-        1 - variavel ou argumento da funcao 
+        1 - variavel ou argumento da funcao
         2 - indice de funcao
         -1 - operacao
     */
@@ -50,14 +50,14 @@ byte *generateFunction(byte *code, int *currentSize, int *maxSize);
 byte *generateCall(byte *code, int *currentSize, int *maxSize, int distance, int upOrDown);
 byte *generateAssigmentOneToOne(byte *code, int *currentSize, int *maxSize, var v);
 byte *generateOperation(byte *code, int *currentSize, int *maxSize,
- var v1, var op, var v2);
+                        var v1, var op, var v2);
 byte *generateZret(byte *code, int *currentSize, int *maxSize, var v, int distanceToLabel);
 byte *generateSum(byte *code, int *currentSize, int *maxSize, var v1, var v2);
 byte *generateSub(byte *code, int *currentSize, int *maxSize, var v1, var v2);
 byte *generateMul(byte *code, int *currentSize, int *maxSize, var v1, var v2);
 byte *generateReturn(byte *code, int *currentSize, int *maxSize, var v);
 byte *generateAssigment(byte *code, int *currentSize, int *maxSize,
- int varNum);
+                        int varNum);
 byte *generateCaller(byte *code, int *currentSize, int *maxSize);
 
 // funcoes auxiliares
@@ -67,7 +67,7 @@ byte *littleThatEndian(byte *bytes, int fillFF);
 byte *intToBytes(int x, int fillFF);
 void *doubleSize(void *ptr, int *size, int condition);
 byte varInMC(int varNum);
-byte *varOrConstBytes(var v, int * size);
+byte *varOrConstBytes(var v, int *size);
 string removeFirstChar(string s);
 
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry)
@@ -79,19 +79,19 @@ void gera_codigo(FILE *f, unsigned char code[], funcp *entry)
 
 unsigned char *convertionWrapper(string buffer, funcp *entry)
 {
-    int i;               // indice atual do vetor de linhas
-    int maxSize = 50;    // tamanho inicial maximo do vetor de linhas
-    int currentSize = 0; // tamanho atual do vetor de linhas
-    int nLines = 0;      // numero de linhas do arquivo
-    int functionIndexesSize = 0; //tamanho do vetor de funcoes
-    int callsIndexesSize = 0; //tamanho do vetor de chamadas
-    int auxTempVars; //variavel auxiliar para saber o tamanho da variavel temporaria
+    int i;                                                 // indice atual do vetor de linhas
+    int maxSize = 50;                                      // tamanho inicial maximo do vetor de linhas
+    int currentSize = 0;                                   // tamanho atual do vetor de linhas
+    int nLines = 0;                                        // numero de linhas do arquivo
+    int functionIndexesSize = 0;                           // tamanho do vetor de funcoes
+    int callsIndexesSize = 0;                              // tamanho do vetor de chamadas
+    int auxTempVars;                                       // variavel auxiliar para saber o tamanho da variavel temporaria
     int *functionsIndexes = malloc(sizeof(int) * maxSize); // vetor de indices das funcoes
-    int *callerIndexes = malloc(sizeof(int) * maxSize); // vetor de indices dos calls
+    int *callerIndexes = malloc(sizeof(int) * maxSize);    // vetor de indices dos calls
     unsigned char *code = (unsigned char *)malloc(sizeof(unsigned char) * maxSize);
-    string *lines = brakeInto(buffer, &nLines, '\n');      // divide o buffer em linhas
+    string *lines = brakeInto(buffer, &nLines, '\n'); // divide o buffer em linhas
     char firstCharacter;
-    var* tempVars; //variaveis temporarias
+    var *tempVars;                                       // variaveis temporarias
     code = generateCaller(code, &currentSize, &maxSize); // gera o codigo que chama a funcao principal
     for (i = 0; i < nLines; i++)
     {
@@ -109,17 +109,20 @@ unsigned char *convertionWrapper(string buffer, funcp *entry)
         case 'r':
             tempVars = parseLineToVar(lines[i], &auxTempVars);
             code = generateReturn(code, &currentSize,
-             &maxSize,tempsVars[0]);
-             free(tempVars);
+                                  &maxSize, tempsVars[0]);
+            free(tempVars);
             brake;
         case 'v':
             tempVars = parseLineToVar(lines[i], &auxTempVars);
-            if(auxTempVars != 2){
+            if (auxTempVars != 2)
+            {
                 code = generateOperation(code, &currentSize, &maxSize,
-                tempVars[1], tempVars[2], tempVars[3]); //TODO: Terminar
-                code = generateAssigment(code, &currentSize, &maxSize,tempVars[0].value);
-            }else{
-                code = generateAssigmentOneToOne(code, &currentSize, &maxSize,tempVars[0],tempVars[1]);
+                                         tempVars[1], tempVars[2], tempVars[3]); // TODO: Terminar
+                code = generateAssigment(code, &currentSize, &maxSize, tempVars[0].value);
+            }
+            else
+            {
+                code = generateAssigmentOneToOne(code, &currentSize, &maxSize, tempVars[0], tempVars[1]);
             }
             free(tempVars);
             brake;
@@ -129,16 +132,12 @@ unsigned char *convertionWrapper(string buffer, funcp *entry)
     // botar o indice da ultima funcao aqui indices 5-8
 }
 
-
-
-
-
 /*
 Funcao reponsavel por gerar codigo de maquina de
 assigment com operacoes ou calls
 
 O registro %r12 eh usado para guardar o resultado de operacoes
-entao basta mover o que tiver no registro %r12 para o local 
+entao basta mover o que tiver no registro %r12 para o local
 certo da stack
 
 Codigo equivalente de assembly:
@@ -147,16 +146,14 @@ movq %r12,-X(%rbp)
 
 */
 
-byte *generateAssigment(byte* code, int* currentSize,int *maxSize,int value){
+byte *generateAssigment(byte *code, int *currentSize, int *maxSize, int value)
+{
     byte lastByte = varInMC(value);
-    byte codeToPush[4] = {0x4c,0x89,0x65,lastByte};
-    code = doubleSize(code,maxSize, *currentSize+4>=*maxSize);
-    code = pushMachineCode(code,codeToPush,*currentSize,4);
+    byte codeToPush[4] = {0x4c, 0x89, 0x65, lastByte};
+    code = doubleSize(code, maxSize, *currentSize + 4 >= *maxSize);
+    code = pushMachineCode(code, codeToPush, *currentSize, 4);
     return code;
 }
-
-
-
 
 /*
 Funcao responsavel por gerar codigo de maquina de
@@ -177,11 +174,13 @@ movq -X1(%rbp),%r12
 movq %r12,-X2(%rbp)
 
 */
-byte *generateAssigmentOneToOne(byte* code, int* currentSize,int *maxSize,var v1,var v2){
+byte *generateAssigmentOneToOne(byte *code, int *currentSize, int *maxSize, var v1, var v2)
+{
 
     byte codeToPush[8];
-    
-    if(v.isVar == 0){
+
+    if (v.isVar == 0)
+    {
         byte aux[4] = intToBytes(v2.value, 0);
         codeToPush[0] = 0x48;
         codeToPush[1] = 0xc7;
@@ -191,7 +190,9 @@ byte *generateAssigmentOneToOne(byte* code, int* currentSize,int *maxSize,var v1
         codeToPush[5] = aux[1];
         codeToPush[6] = aux[2];
         codeToPush[7] = aux[3];
-    }else{
+    }
+    else
+    {
         codeToPush[0] = 0x4c;
         codeToPush[1] = 0x8b;
         codeToPush[2] = 0x65;
@@ -202,12 +203,10 @@ byte *generateAssigmentOneToOne(byte* code, int* currentSize,int *maxSize,var v1
         codeToPush[7] = varInMC(v2.value);
     }
 
-    code = doubleSize(code,maxSize, *currentSize+8>=*maxSize);
-    code = pushMachineCode(code,codeToPush,*currentSize,8);
+    code = doubleSize(code, maxSize, *currentSize + 8 >= *maxSize);
+    code = pushMachineCode(code, codeToPush, *currentSize, 8);
     return code;
 }
-
-
 
 /*
 Funcao que gera o codigo de retono
@@ -217,7 +216,7 @@ Aqui temos duas possibilidades:
 
 se retornar uma variavel, temos o assembly :
 
-movq -X(%rbp),%rax 
+movq -X(%rbp),%rax
 
 onde X eh o equivalente na stack a variavel
 
@@ -229,16 +228,16 @@ onde YY eh a constante
 
 */
 
-byte *generateReturn(byte* code, int* currentSize,int *maxSize,var v){
+byte *generateReturn(byte *code, int *currentSize, int *maxSize, var v)
+{
     int size;
-    byte * lastBytes = varOrConstBytes(v, &size);
-    size+=3;
-    byte codeToPush[size] = {0x48,0x8b,0x45};
-    code = doubleSize(code,maxSize, *currentSize+size>=*maxSize);
-    code = pushMachineCode(code,codeToPush,*currentSize,size);
+    byte *lastBytes = varOrConstBytes(v, &size);
+    size += 3;
+    byte codeToPush[size] = {0x48, 0x8b, 0x45};
+    code = doubleSize(code, maxSize, *currentSize + size >= *maxSize);
+    code = pushMachineCode(code, codeToPush, *currentSize, size);
     return code;
 }
-
 
 /*
  Funcao que gera o codigo de termino de uma funcao (end)
@@ -249,10 +248,11 @@ byte *generateReturn(byte* code, int* currentSize,int *maxSize,var v){
 
 */
 
-byte *generateEnd(byte* code, int* currentSize,int *maxSize){
-    byte * codeToPush = {0xc9,0xc3};
-    code = doubleSize(code,maxSize, *currentSize+2>=*maxSize);
-    code = pushMachineCode(code,codeToPush,*currentSize,2);
+byte *generateEnd(byte *code, int *currentSize, int *maxSize)
+{
+    byte *codeToPush = {0xc9, 0xc3};
+    code = doubleSize(code, maxSize, *currentSize + 2 >= *maxSize);
+    code = pushMachineCode(code, codeToPush, *currentSize, 2);
     return code;
 }
 
@@ -265,10 +265,10 @@ byte *generateEnd(byte* code, int* currentSize,int *maxSize){
     subq $48,%rsp
     movq %rdi,-48(%rbp)
 
-    no caso estamos alocando memoria para as 5 variaveis e para o 
+    no caso estamos alocando memoria para as 5 variaveis e para o
     parametro de entrada 6 * 8 = 48
     e passamos o parametro para a primeira parte da stack
-    para salvarmos ele entre chamadas. 
+    para salvarmos ele entre chamadas.
 
 */
 
@@ -277,9 +277,9 @@ byte *generateFunction(byte *code, int *currentSize, int *maxSize)
     byte *codeToPush = {0x55, 0x48, 0x89,
                         0xe5, 0x48, 0x83,
                         0xec, 0x30, 0x48,
-                         0x89, 0x7d, 0xd0}; 
+                        0x89, 0x7d, 0xd0};
     code = doubleSize(code, maxSize, *currentSize + 11 >= *maxSize);
-    code = pushMachineCode(code,codeToPush,*currentSize,11);
+    code = pushMachineCode(code, codeToPush, *currentSize, 11);
     return code;
 }
 
@@ -312,77 +312,86 @@ byte *generateCaller(byte *code, int *currentSize, int *maxSize)
     constante ou operacao
 
 */
-var *parseLineToVar(string line, int *size){
-    string *pieces = brakeInto(line, size, ' '); //quebra em espacos
-    var *vars = malloc(sizeof(var) * (*size)); //aloca memoria para as variaveis
-    char firstLetter; //primeira letra da linha
-    for(int i =0; i < *size; i++){ // para cada variavel
-        firstLetter = pieces[i].value[0]; 
-        switch(firstLetter){
-            case 'v':
-                vars[i].value = pieces[i].value[1] - '0'; //pega o valor da variavel
-                vars[i].isVar = 1; //variavel
-                break;
-            case '$':
-                char * aux = (char *)removeFirstChar(pieces[i].value);
-                vars[i].isVar=0; //constante
-                vars[i].value = atoi(aux); //pega o valor da constante
-                break;
-            case '+':
-                vars[i].isVar = -1; //operacao
-                vars[i].value = 1; //soma
-                break;
-            case '-':
-                vars[i].isVar = -1; //operacao
-                vars[i].value = 2; //subtracao
-                break;
-            case '*':
-                vars[i].isVar = -1; //operacao
-                vars[i].value = 3; //multiplicacao
-                break;
-            case 'c':
-                vars[i].isVar = -1; //operacao
-                vars[i].value = 4; //call
-                break;
-            case '=': //volta um pois esta informacao e desnecessaria
-                i--;
-                break;
-            default:
-                if(firstLetter - '0' >= 0 && firstLetter - '0' <= 9){
-                    vars[i].value = atoi(pieces[i].value[1]); //pega o valor de indice de funcao
-                    vars[i].isVar = 2; //indice de funcao
-                }else{
-                    i--; //considerando que tem algum espaco no lugar errado;
-                }
-                break;
-            //TODO: implementar operacoes
+var *parseLineToVar(string line, int *size)
+{
+    string *pieces = brakeInto(line, size, ' '); // quebra em espacos
+    var *vars = malloc(sizeof(var) * (*size));   // aloca memoria para as variaveis
+    char firstLetter;                            // primeira letra da linha
+    for (int i = 0; i < *size; i++)
+    { // para cada variavel
+        firstLetter = pieces[i].value[0];
+        switch (firstLetter)
+        {
+        case 'v':
+            vars[i].value = pieces[i].value[1] - '0'; // pega o valor da variavel
+            vars[i].isVar = 1;                        // variavel
+            break;
+        case '$':
+            char *aux = (char *)removeFirstChar(pieces[i].value);
+            vars[i].isVar = 0;         // constante
+            vars[i].value = atoi(aux); // pega o valor da constante
+            break;
+        case '+':
+            vars[i].isVar = -1; // operacao
+            vars[i].value = 1;  // soma
+            break;
+        case '-':
+            vars[i].isVar = -1; // operacao
+            vars[i].value = 2;  // subtracao
+            break;
+        case '*':
+            vars[i].isVar = -1; // operacao
+            vars[i].value = 3;  // multiplicacao
+            break;
+        case 'c':
+            vars[i].isVar = -1; // operacao
+            vars[i].value = 4;  // call
+            break;
+        case '=': // volta um pois esta informacao e desnecessaria
+            i--;
+            break;
+        default:
+            if (firstLetter - '0' >= 0 && firstLetter - '0' <= 9)
+            {
+                vars[i].value = atoi(pieces[i].value[1]); // pega o valor de indice de funcao
+                vars[i].isVar = 2;                        // indice de funcao
+            }
+            else
+            {
+                i--; // considerando que tem algum espaco no lugar errado;
+            }
+            break;
+            // TODO: implementar operacoes
         }
     }
     return vars;
 }
 
-
 // funcao que devolve os bytes de acordo com o tipo de var
-byte* varOrConstBytes(var v,int * size){
-    int size = v.isVar==1 ? 1 : 4; // se for variavel, o tamanho e 1, se for constante, o tamanho e 4
+byte *varOrConstBytes(var v, int *size)
+{
+    int size = v.isVar == 1 ? 1 : 4; // se for variavel, o tamanho e 1, se for constante, o tamanho e 4
     byte res[size];
-    if(v.isVar=='0'){
+    if (v.isVar == '0')
+    {
         *size = 1;
-        res[0] = varInMc(v.value); //pega o indice correspondete de pilha
-    }else{
+        res[0] = varInMc(v.value); // pega o indice correspondete de pilha
+    }
+    else
+    {
         *size = 4;
-        res = intToBytes(v.value,0); //pega o valor constante (em 4 bytes)
+        res = intToBytes(v.value, 0); // pega o valor constante (em 4 bytes)
     }
     return res;
 }
-
 
 /*
 Dado um indice de variavel retorna o indice da pilhar correspodente
 */
 
-byte varInMc(int x){
-    byte res = 0xd8 + (8*x);
+byte varInMc(int x)
+{
+    byte res = 0xd8 + (8 * x);
     return res;
 }
 
@@ -486,6 +495,22 @@ byte *intToBytes(int x, int fillFF)
     }
 
     return array;
+}
+
+string removeFirstChar(string s)
+{
+    string new_str;
+    new_str = (string)malloc(sizeof(char) * (strlen(s) - 1));
+    int i;
+
+    for (i = 0; i < strlen(s); i++)
+    {
+        new_str[i] = s[i + 1];
+    }
+
+    new_str[i] = '\0';
+
+    return new_str;
 }
 
 /*
