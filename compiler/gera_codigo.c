@@ -114,10 +114,33 @@ unsigned char *convertionWrapper(string buffer, funcp *entry)
     // botar o indice da ultima funcao aqui indices 5-8
 }
 
+/*
+Funcao que gera o codigo de retono
+Aqui temos duas possibilidades:
+1 - Retornar uma variavel
+2 - Retornar uma constante
+
+se retornar uma variavel, temos o assembly :
+
+movq -X(%rbp),%rax 
+
+onde X eh o equivalente na stack a variavel
+
+se retornar uma constante, temos o assembly :
+
+movq $YY,%rax
+
+onde YY eh a constante
+
+*/
+
 byte *generateReturn(byte* code, int* currentSize,int *maxSize,var v){
-    byte * codeToPush = {0x48,0x8b,0x45};
-    code = doubleSize(code,maxSize, *currentSize+??>=*maxSize);
-    code = pushMachineCode(code,codeToPush,*currentSize,??);
+    int size;
+    byte * lastBytes = varOrConstBytes(v, &size);
+    size+=3;
+    byte codeToPush[size] = {0x48,0x8b,0x45};
+    code = doubleSize(code,maxSize, *currentSize+size>=*maxSize);
+    code = pushMachineCode(code,codeToPush,*currentSize,size);
     return code;
 }
 

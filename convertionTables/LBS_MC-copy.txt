@@ -39,7 +39,7 @@ movq $YY,%rax
 
 {0x48,0xc7,0xc0,YY,YY,YY,YY}
 
-retorno de aritimetica
+retorno de aritimetica (?)
 
 movq %r12,%rax
 
