@@ -8,7 +8,10 @@
 #define MAX_MACHINE_CODE_SIZE 100
 
 typedef int (*funcp)(int x);
-typedef char *string;
+typedef struct __string{
+  int len; //tamanho da string
+  char *value; //a string em si
+}string; 
 typedef unsigned char byte;
 typedef struct __var{
     int value;/* se for uma variavel, este numero correspondera ao indice
@@ -44,19 +47,18 @@ byte *generateAssigment(int valueToAssign, char operation);
 
 // funcoes auxiliares
 string *brakeInto(string buffer, int *size, char c); 
+byte *stackPosition(int varNum);
 byte *littleThatEndian(byte *bytes, int fillFF);     
 byte *intToBytes(int x, int fillFF);                
 void *doubleSize(void *ptr, int *size, int condition);
-
 
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry){
     int bufferSize = sizeOfFile(f);
     string buffer = generateBuffer(f);
     code = (unsigned char*) convertionWrapper(entry);
-    
-
-
+    freeBuffer(buffer);
 }
+
 
 
 
