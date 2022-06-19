@@ -5,26 +5,39 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#define MAX_MACHINE_CODE_SIZE 100
 
 typedef int (*funcp)(int x);
-typedef struct __string{
-  int len; //tamanho da string
-  char *value; //a string em si
-}string; 
+typedef struct __string
+{
+    int len;     // tamanho da string
+    char *value; // a string em si
+} string;
 typedef unsigned char byte;
-typedef struct __var{
-    int value;/* se for uma variavel, este numero correspondera ao indice
-     da variavel, caso seja uma constante este numero corresponde o seu valor*/
-    int isVar; // diz se eh uma variavel ou se eh um valor constante
-}var; 
+typedef struct __var
+{
+    int value; /* se for uma variavel, este numero correspondera ao indice
+      da variavel, caso seja uma constante este numero corresponde o seu valor,
+      caso seja uma operacao seguir a tabela a seguir
+       = -> 0
+       + -> 1
+       - -> 2
+       * -> 3
+       call -> 4
+    caso seja p0 value = -1
+      */
+    int isVar;
+    /*
+        0 - constante
+        1 - variavel ou argumento da funcao 
+        -1 - operacao
+    */
+} var;
 
-//funcoes de interpretacao de codigo de maquina
-var* parseLineToVar(string *pieces,char c);
+// funcoes de interpretacao de codigo de maquina
+var *parseLineToVar(string line, int *size);
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry);
-unsigned char * convertionWrapper(funcp *entry);
-byte *fixCallIndexes(byte *code, int * callsIndexes,int* functionIndexes);
-
+unsigned char *convertionWrapper(string buffer, funcp *entry);
+byte *fixCallIndexes(byte *code, int *callsIndexes, int *functionIndexes);
 
 // funcaoes de buffer
 string generateBuffer(FILE *f);
@@ -32,44 +45,201 @@ int sizeOfFile(FILE *f);
 void freeBuffer(string buffer);
 
 // funcoes de geracao de codigo de maquina
-byte *generateEnd();                      
-byte *generateFunction();                    
-byte *generateCall(int distance, int upOrDown); 
-byte *generateOperation(char operationType, var v1, var v2);   
-byte *generateZret(var v,int distanceToLabel);         
-byte *generateSum(var v1, var v2); 
-byte *generateSub(var v1, var v2);
-byte *generateMul(var v1,var v2);
-byte *generateReturn(var v);                            
-byte *generateAssigment(int valueToAssign, char operation);
-
-
+byte *generateEnd(byte *code, int *currentSize, int *maxSize);
+byte *generateFunction(byte *code, int *currentSize, int *maxSize);
+byte *generateCall(byte *code, int *currentSize, int *maxSize, int distance, int upOrDown);
+byte *generateOperation(byte *code, int *currentSize, int *maxSize, char operationType, var v1, var v2);
+byte *generateZret(byte *code, int *currentSize, int *maxSize, var v, int distanceToLabel);
+byte *generateSum(byte *code, int *currentSize, int *maxSize, var v1, var v2);
+byte *generateSub(byte *code, int *currentSize, int *maxSize, var v1, var v2);
+byte *generateMul(byte *code, int *currentSize, int *maxSize, var v1, var v2);
+byte *generateReturn(byte *code, int *currentSize, int *maxSize, var v);
+byte *generateAssigment(byte *code, int *currentSize, int *maxSize, int valueToAssign, char operation);
+byte *generateCaller(byte *code, int *currentSize, int *maxSize);
 
 // funcoes auxiliares
-string *brakeInto(string buffer, int *size, char c); 
+string *brakeInto(string buffer, int *size, char c);
 byte *stackPosition(int varNum);
-byte *littleThatEndian(byte *bytes, int fillFF);     
-byte *intToBytes(int x, int fillFF);                
+byte *littleThatEndian(byte *bytes, int fillFF);
+byte *intToBytes(int x, int fillFF);
 void *doubleSize(void *ptr, int *size, int condition);
+byte varInMC(int varNum);
+byte* varOrConst();
 
-void gera_codigo(FILE *f, unsigned char code[], funcp *entry){
-    int bufferSize = sizeOfFile(f);
+void gera_codigo(FILE *f, unsigned char code[], funcp *entry)
+{
     string buffer = generateBuffer(f);
-    code = (unsigned char*) convertionWrapper(entry);
+    code = (unsigned char *)convertionWrapper(buffer, entry);
     freeBuffer(buffer);
 }
 
+unsigned char *convertionWrapper(string buffer, funcp *entry)
+{
+    int i;               // indice atual do vetor de linhas
+    int maxSize = 50;    // tamanho inicial maximo do vetor de linhas
+    int currentSize = 0; // tamanho atual do vetor de linhas
+    int nLines = 0;      // numero de linhas do arquivo
+    int functionIndexesSize = 0; //tamanho do vetor de funcoes
+    int callsIndexesSize = 0; //tamanho do vetor de chamadas
+    int auxTempVars; //variavel auxiliar para saber o tamanho da variavel temporaria
+    int *functionsIndexes = malloc(sizeof(int) * maxSize); // vetor de indices das funcoes
+    int *callerIndexes = malloc(sizeof(int) * maxSize); // vetor de indices dos calls
+    unsigned char *code = (unsigned char *)malloc(sizeof(unsigned char) * maxSize);
+    string *lines = brakeInto(buffer, &nLines, '\n');      // divide o buffer em linhas
+    char firstCharacter;
+    var* tempVars; //variaveis temporarias
+    code = generateCaller(code, &currentSize, &maxSize); // gera o codigo que chama a funcao principal
+    for (i = 0; i < nLines; i++)
+    {
+        firstCharacter = lines[i].value[0];
+        switch (firstCharacter)
+        {
+        case 'f':
+            functionsIndexes[functionIndexesSize] = currentSize;
+            functionIndexesSize++;
+            code = generateFunction(code, &currentSize, &maxSize);
+            brake;
+        case 'e':
+            code = generateEnd(code, &currentSize, &maxSize);
+            brake;
+        case 'r':
+            tempVars = parseLineToVar(lines[i], &auxTempVars);
+            code = generateReturn(code, &currentSize,
+             &maxSize,tempsVars[0]);
+             free(tempVars);
+            brake;
+        }
+    }
+
+    // botar o indice da ultima funcao aqui indices 5-8
+}
+
+byte *generateReturn(byte* code, int* currentSize,int *maxSize,var v){
+    byte * codeToPush = {0x48,0x8b,0x45};
+    code = doubleSize(code,maxSize, *currentSize+??>=*maxSize);
+    code = pushMachineCode(code,codeToPush,*currentSize,??);
+    return code;
+}
 
 
+/*
+ Funcao que gera o codigo de termino de uma funcao (end)
+ Codigo equivalente de assembly:
+
+ leave
+ ret
+
+*/
+
+byte *generateEnd(byte* code, int* currentSize,int *maxSize){
+    byte * codeToPush = {0xc9,0xc3};
+    code = doubleSize(code,maxSize, *currentSize+2>=*maxSize);
+    code = pushMachineCode(code,codeToPush,*currentSize,2);
+    return code;
+}
+
+/*
+    Funcao que gera o codigo de cabecalho de uma funcao (function)
+    Codigo equivalente de assembly:
+
+    pushq %rbp
+    movq %rsp,%rbp
+    subq $48,%rsp
+    movq %rdi,-48(%rbp)
+
+    no caso estamos alocando memoria para as 5 variaveis e para o 
+    parametro de entrada 6 * 8 = 48
+    e passamos o parametro para a primeira parte da stack
+    para salvarmos ele entre chamadas. 
+
+*/
+
+byte *generateFunction(byte *code, int *currentSize, int *maxSize)
+{
+    byte *codeToPush = {0x55, 0x48, 0x89,
+                        0xe5, 0x48, 0x83,
+                        0xec, 0x30, 0x48,
+                         0x89, 0x7d, 0xd0}; 
+    code = doubleSize(code, maxSize, *currentSize + 11 >= *maxSize);
+    code = pushMachineCode(code,codeToPush,*currentSize,11);
+    return code;
+}
+
+/*
+
+Gera o chamador da ultima funcao
+Codigo equivalente de assembly:
+
+pushq %rbp
+movq %rsp,%rbp
+call lastFunction
+leave
+ret
+
+*/
+
+byte *generateCaller(byte *code, int *currentSize, int *maxSize)
+{
+    byte *codeToPush = {0x55, 0x48, 0x89, 0xe5, 0xe8,
+                        0x00, 0x00, 0x00, 0x00, 0xc9, 0xc3}; // codigo de maquina para chamar a funcao
+    // note que o equivalente de call esta chamando somente 0, no final do wrapper
+    // ele ajeita para chamar a ultima funcao
+    // a funcao nao necessita de avaliar o tamanho pois e a primeira funcao a ser chamada
+    code = pushMachineCode(code, codeToPush, currentSize, 11);
+    *currentSize += 11;
+    return code;
+}
+/*
+    Dado uma linha do arquivo decompoe-la em uma variavel,
+    constante ou operacao
+
+*/
+var *parseLineToVar(string line, int *size){
+    string *pieces = brakeInto(line, size, ' '); //quebra em espacos
+    var *vars = malloc(sizeof(var) * (*size)); //aloca memoria para as variaveis
+    char firstLetter; //primeira letra da linha
+    for(int i =0; i < *size; i++){ // para cada variavel
+        firstLetter = pieces[i].value[0]; 
+        switch(firstLetter){
+            case 'v':
+                vars[i].value = pieces[i].value[1] - '0'; //pega o valor da variavel
+                vars[i].isVar = 1; //variavel
+                break;
+            case '$':
+                vars[i].isVar =0; //constante
+                vars[i].value = atoi(pieces[i].value + 1); //pega o valor da constante
+                break;
+
+            //TODO: implementar operacoes
+        }
+    }
+    return vars;
+}
 
 
+// funcao que devolve os bytes de acordo com o tipo de var
+byte* varOrConstBytes(var v,int * size){
+    int size = v.isVar==1 ? 1 : 4; // se for variavel, o tamanho e 1, se for constante, o tamanho e 4
+    byte res[size];
+    if(v.isVar=='0'){
+        *size = 1;
+        res[0] = varInMc(v.value); //pega o indice correspondete de pilha
+    }else{
+        *size = 4;
+        res = intToBytes(v.value); //pega o valor constante (em 4 bytes)
+    }
+    return res;
+}
 
 
+/*
+Dado um indice de variavel retorna o indice da pilhar correspodente
+*/
 
-
-
-
-
+byte varInMc(int x){
+    byte res = 0xd8 + (8*x);
+    return res;
+}
 
 /*
 Dado uma string, retorna um array de strings,
@@ -174,7 +344,7 @@ byte *intToBytes(int x, int fillFF)
 }
 
 /*
-    Dobra o tamanho de um array
+    Dobra o tamanho de um array (string ou byte)
 */
 void *doubleSize(void *ptr, int *size, int condition)
 {
@@ -186,7 +356,6 @@ void *doubleSize(void *ptr, int *size, int condition)
     return ptr;
 }
 
-
 int sizeOfFile(FILE *f) // Funcao que retorna o tamanho de um arquivo
 {
     int size;
@@ -196,11 +365,12 @@ int sizeOfFile(FILE *f) // Funcao que retorna o tamanho de um arquivo
     return size;           // retorna o tamanho do arquivo
 }
 
-string generateBuffer(FILE *f,int * size) // Funcao que retorna um buffer para determinado arquivo
+string generateBuffer(FILE *f) // Funcao que retorna um buffer para determinado arquivo
 {
-    *size = sizeOfFile(f);            // pega o tamanho do arquivo
-    char *buffer = (char *)malloc(*size); // aloca o tamanho do arquivo
-    fread(buffer, 1, size, f);           // le o arquivo e coloca no buffer
+    string buffer;
+    buffer.len = sizeOfFile(f);           // pega o tamanho do arquivo
+    buffer.value = (char *)malloc(*size); // aloca o tamanho do arquivo
+    fread(buffer, 1, size, f);            // le o arquivo e coloca no buffer
     return buffer;
 }
 /*

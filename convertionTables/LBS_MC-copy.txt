@@ -2,7 +2,7 @@ function
 
 pushq %rbp
 movq %rsp,%rbp
-subq $40,%rsp
+subq $48,%rsp
 movq %rdi,-48(%rbp) -> argumento passado para a stack para salvar
 
 {0x55,0x48,0x89,0xe5,0x48,
@@ -282,4 +282,5 @@ todos os programas de LBS começaram com
 pushq %rbp
 movq %rsp,%rbp
 call lastFunction
-leave ret
+leave
+ret

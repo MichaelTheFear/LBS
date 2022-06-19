@@ -1,10 +1,9 @@
 /*rax r12 rdx rsi rdi r8 r9*/
 
-
 pushq %rbp
 movq %rsp,%rbp
 subq $48,%rsp
-movq %rdi,-48(%rbp)
+movq %rdi,-48(%rbp) 
 
 /*
 function1:
