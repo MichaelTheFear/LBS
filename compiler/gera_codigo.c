@@ -10,35 +10,64 @@
 typedef int (*funcp)(int x);
 typedef char *string;
 typedef unsigned char byte;
+typedef struct __var{
+    int value;/* se for uma variavel, este numero correspondera ao indice
+     da variavel, caso seja uma constante este numero corresponde o seu valor*/
+    int isVar; // diz se eh uma variavel ou se eh um valor constante
+}var; 
 
+//funcoes de interpretacao de codigo de maquina
+var* parseLineToVar(string *pieces,char c);
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry);
-void runMachineCode(byte *lbs, int size);
-byte *bufferToMachineCode(string buffer);
-byte *interpretLine(string line, int *size);
+unsigned char * convertionWrapper(funcp *entry);
+byte *fixCallIndexes(byte *code, int * callsIndexes,int* functionIndexes);
+
 
 // funcaoes de buffer
 string generateBuffer(FILE *f);
 int sizeOfFile(FILE *f);
+void freeBuffer(string buffer);
 
 // funcoes de geracao de codigo de maquina
-byte *generateFunctionHeader();                                              // TODO
-byte *generateFunctionFooter();                                              // TODO
-byte *generateCall(int distance, int upOrDown);                              // TODO
-byte *generateZret(int varOrConst, int value, int distanceToLabel);          // TODO
-byte *generateSum(int varOrConst1, int varOrConst2, int value1, int value2); // TODO
-byte *generateSub(int varOrConst1, int varOrConst2, int value1, int value2); // TODO
-byte *generateMul(int varOrConst1, int varOrConst2, int value1, int value2); // TODO
-byte *generateReturn(int varOrConst, int value);                             // TODO
-byte *generateAssigment(
-    int varOrConst1, int value1,
-    int varOrConst2, int value2,
-    int valueTo, char operation); // TODO
+byte *generateEnd();                      
+byte *generateFunction();                    
+byte *generateCall(int distance, int upOrDown); 
+byte *generateOperation(char operationType, var v1, var v2);   
+byte *generateZret(var v,int distanceToLabel);         
+byte *generateSum(var v1, var v2); 
+byte *generateSub(var v1, var v2);
+byte *generateMul(var v1,var v2);
+byte *generateReturn(var v);                            
+byte *generateAssigment(int valueToAssign, char operation);
+
+
 
 // funcoes auxiliares
-string *brakeInto(string buffer, int *size, char c); // TODO M
-byte *littleThatEndian(byte *bytes, int fillFF);     // TODO M
-byte *intToBytes(int x, int fillFF);                 // TODO M
+string *brakeInto(string buffer, int *size, char c); 
+byte *littleThatEndian(byte *bytes, int fillFF);     
+byte *intToBytes(int x, int fillFF);                
 void *doubleSize(void *ptr, int *size, int condition);
+
+
+void gera_codigo(FILE *f, unsigned char code[], funcp *entry){
+    int bufferSize = sizeOfFile(f);
+    string buffer = generateBuffer(f);
+    code = (unsigned char*) convertionWrapper(entry);
+    
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
 
 /*
 Dado uma string, retorna um array de strings,
@@ -107,7 +136,6 @@ byte *littleThatEndian(byte *bytes, int fillFF)
         array[2] = 0x00;
         array[3] = 0x00;
     }
-
     return array;
 }
 
@@ -156,25 +184,6 @@ void *doubleSize(void *ptr, int *size, int condition)
     return ptr;
 }
 
-/* bytes equivalentes a:
-    pushq %rbp
-    mov %rsp, %rbp
-*/
-byte *generateFunctionHeader()
-{
-    byte header[] = {0x55, 0x48, 0x89, 0xe5};
-    return header;
-}
-/* bytes equivalentes a:
-    popq %rbp
-    ret
-*/
-
-byte *generateFunctionFooter()
-{
-    byte footer[] = {0x53, 0xc3};
-    return footer;
-}
 
 int sizeOfFile(FILE *f) // Funcao que retorna o tamanho de um arquivo
 {
@@ -185,10 +194,10 @@ int sizeOfFile(FILE *f) // Funcao que retorna o tamanho de um arquivo
     return size;           // retorna o tamanho do arquivo
 }
 
-string generateBuffer(FILE *f) // Funcao que retorna um buffer para determinado arquivo
+string generateBuffer(FILE *f,int * size) // Funcao que retorna um buffer para determinado arquivo
 {
-    int size = sizeOfFile(f);            // pega o tamanho do arquivo
-    char *buffer = (char *)malloc(size); // aloca o tamanho do arquivo
+    *size = sizeOfFile(f);            // pega o tamanho do arquivo
+    char *buffer = (char *)malloc(*size); // aloca o tamanho do arquivo
     fread(buffer, 1, size, f);           // le o arquivo e coloca no buffer
     return buffer;
 }
@@ -206,6 +215,7 @@ byte *pushMachineCode(byte *array, byte *code, int *sizeArray, int sizeCode)
 }
 
 /*
+
 byte *bufferToMachineCode(string buffer) //Funcao que transforma um buffer em codigo de maquina
 {
     int maxSize = sizeof(buffer / sizeof(char)); // pega o tamanho do buffer
