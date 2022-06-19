@@ -18,7 +18,6 @@ typedef struct __var
     int value; /* se for uma variavel, este numero correspondera ao indice
       da variavel, caso seja uma constante este numero corresponde o seu valor,
       caso seja uma operacao seguir a tabela a seguir
-       = -> 0
        + -> 1
        - -> 2
        * -> 3
@@ -29,6 +28,7 @@ typedef struct __var
     /*
         0 - constante
         1 - variavel ou argumento da funcao 
+        2 - indice de funcao
         -1 - operacao
     */
 } var;
@@ -48,13 +48,16 @@ void freeBuffer(string buffer);
 byte *generateEnd(byte *code, int *currentSize, int *maxSize);
 byte *generateFunction(byte *code, int *currentSize, int *maxSize);
 byte *generateCall(byte *code, int *currentSize, int *maxSize, int distance, int upOrDown);
-byte *generateOperation(byte *code, int *currentSize, int *maxSize, char operationType, var v1, var v2);
+byte *generateAssigmentOneToOne(byte *code, int *currentSize, int *maxSize, var v);
+byte *generateOperation(byte *code, int *currentSize, int *maxSize,
+ var v1, var op, var v2);
 byte *generateZret(byte *code, int *currentSize, int *maxSize, var v, int distanceToLabel);
 byte *generateSum(byte *code, int *currentSize, int *maxSize, var v1, var v2);
 byte *generateSub(byte *code, int *currentSize, int *maxSize, var v1, var v2);
 byte *generateMul(byte *code, int *currentSize, int *maxSize, var v1, var v2);
 byte *generateReturn(byte *code, int *currentSize, int *maxSize, var v);
-byte *generateAssigment(byte *code, int *currentSize, int *maxSize, int valueToAssign, char operation);
+byte *generateAssigment(byte *code, int *currentSize, int *maxSize,
+ int varNum);
 byte *generateCaller(byte *code, int *currentSize, int *maxSize);
 
 // funcoes auxiliares
@@ -64,7 +67,8 @@ byte *littleThatEndian(byte *bytes, int fillFF);
 byte *intToBytes(int x, int fillFF);
 void *doubleSize(void *ptr, int *size, int condition);
 byte varInMC(int varNum);
-byte* varOrConst();
+byte *varOrConstBytes(var v, int * size);
+string removeFirstChar(string s);
 
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry)
 {
@@ -108,11 +112,102 @@ unsigned char *convertionWrapper(string buffer, funcp *entry)
              &maxSize,tempsVars[0]);
              free(tempVars);
             brake;
+        case 'v':
+            tempVars = parseLineToVar(lines[i], &auxTempVars);
+            if(auxTempVars != 2){
+                code = generateOperation(code, &currentSize, &maxSize,
+                tempVars[1], tempVars[2], tempVars[3]); //TODO: Terminar
+                code = generateAssigment(code, &currentSize, &maxSize,tempVars[0].value);
+            }else{
+                code = generateAssigmentOneToOne(code, &currentSize, &maxSize,tempVars[0],tempVars[1]);
+            }
+            free(tempVars);
+            brake;
         }
     }
 
     // botar o indice da ultima funcao aqui indices 5-8
 }
+
+
+
+
+
+/*
+Funcao reponsavel por gerar codigo de maquina de
+assigment com operacoes ou calls
+
+O registro %r12 eh usado para guardar o resultado de operacoes
+entao basta mover o que tiver no registro %r12 para o local 
+certo da stack
+
+Codigo equivalente de assembly:
+
+movq %r12,-X(%rbp)
+
+*/
+
+byte *generateAssigment(byte* code, int* currentSize,int *maxSize,int value){
+    byte lastByte = varInMC(value);
+    byte codeToPush[4] = {0x4c,0x89,0x65,lastByte};
+    code = doubleSize(code,maxSize, *currentSize+4>=*maxSize);
+    code = pushMachineCode(code,codeToPush,*currentSize,4);
+    return code;
+}
+
+
+
+
+/*
+Funcao responsavel por gerar codigo de maquina de
+assigment sem operacoes e sem calls
+Temos dois caso:
+1 - var = const
+2 - var1 = var2
+
+codigo de assembly equivalete caso 1:
+
+movq $YY,-X(%rbp)
+
+botamos a constante na pilha
+
+codigo de assembly equivalente caso 2:
+
+movq -X1(%rbp),%r12
+movq %r12,-X2(%rbp)
+
+*/
+byte *generateAssigmentOneToOne(byte* code, int* currentSize,int *maxSize,var v1,var v2){
+
+    byte codeToPush[8];
+    
+    if(v.isVar == 0){
+        byte aux[4] = intToBytes(v2.value, 0);
+        codeToPush[0] = 0x48;
+        codeToPush[1] = 0xc7;
+        codeToPush[2] = 0x45;
+        codeToPush[3] = varInMC(v1.value); // pega o byte que representa a variavel
+        codeToPush[4] = aux[0];
+        codeToPush[5] = aux[1];
+        codeToPush[6] = aux[2];
+        codeToPush[7] = aux[3];
+    }else{
+        codeToPush[0] = 0x4c;
+        codeToPush[1] = 0x8b;
+        codeToPush[2] = 0x65;
+        codeToPush[3] = varInMC(v1.value);
+        codeToPush[4] = 0x4c;
+        codeToPush[5] = 0x89;
+        codeToPush[6] = 0x65;
+        codeToPush[7] = varInMC(v2.value);
+    }
+
+    code = doubleSize(code,maxSize, *currentSize+8>=*maxSize);
+    code = pushMachineCode(code,codeToPush,*currentSize,8);
+    return code;
+}
+
+
 
 /*
 Funcao que gera o codigo de retono
@@ -229,10 +324,37 @@ var *parseLineToVar(string line, int *size){
                 vars[i].isVar = 1; //variavel
                 break;
             case '$':
-                vars[i].isVar =0; //constante
-                vars[i].value = atoi(pieces[i].value + 1); //pega o valor da constante
+                char * aux = (char *)removeFirstChar(pieces[i].value);
+                vars[i].isVar=0; //constante
+                vars[i].value = atoi(aux); //pega o valor da constante
                 break;
-
+            case '+':
+                vars[i].isVar = -1; //operacao
+                vars[i].value = 1; //soma
+                break;
+            case '-':
+                vars[i].isVar = -1; //operacao
+                vars[i].value = 2; //subtracao
+                break;
+            case '*':
+                vars[i].isVar = -1; //operacao
+                vars[i].value = 3; //multiplicacao
+                break;
+            case 'c':
+                vars[i].isVar = -1; //operacao
+                vars[i].value = 4; //call
+                break;
+            case '=': //volta um pois esta informacao e desnecessaria
+                i--;
+                break;
+            default:
+                if(firstLetter - '0' >= 0 && firstLetter - '0' <= 9){
+                    vars[i].value = atoi(pieces[i].value[1]); //pega o valor de indice de funcao
+                    vars[i].isVar = 2; //indice de funcao
+                }else{
+                    i--; //considerando que tem algum espaco no lugar errado;
+                }
+                break;
             //TODO: implementar operacoes
         }
     }
@@ -249,7 +371,7 @@ byte* varOrConstBytes(var v,int * size){
         res[0] = varInMc(v.value); //pega o indice correspondete de pilha
     }else{
         *size = 4;
-        res = intToBytes(v.value); //pega o valor constante (em 4 bytes)
+        res = intToBytes(v.value,0); //pega o valor constante (em 4 bytes)
     }
     return res;
 }

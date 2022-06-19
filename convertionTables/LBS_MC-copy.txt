@@ -82,6 +82,9 @@ V = $YY
 
 {0x48,0xc7,0x45,0xd8+(8*V),YY,YY,YY,YY}
 
+
+assigment de variavel para variavel
+
 V' = V''
 
 movq -X''(%rbp),%r12
@@ -98,6 +101,8 @@ movq -X''(%rbp),%r12
 
 movq %r12,-X'(%rbp)
 {0x4c,0x89,0x65,0xd8+(8*V)}
+
+
 
 =========================
 var + const
