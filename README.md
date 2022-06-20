@@ -30,9 +30,9 @@ v0 = $100 - $20
 
 v1 = p0 + v0
 
-p0 = v1 * v1
+v2 = v1 * v1
 
-p0 = call 0 p0
+v3 = call 0 p0
 ```
 
 ### Examples of returning
@@ -40,19 +40,14 @@ p0 = call 0 p0
 ```LBS
 ret $100
 
-ret p0 + $100
+ret p0 
 
-zret $0 call 0 p0 
-
-zret call 2 call 1 call 0 call 3 p0 call 0 call 3 call 2 call 1 p0 + $2
 ```
 
 ### Examples of call
 
 ```LBS
-call 0 $10
-call 1 $30 + p0
-call 2 call 1 call 0 $3
+call 1 $10
 ```
 
 ## Full code LBS examples
