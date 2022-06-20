@@ -1,7 +1,7 @@
 /*rax r12 rdx rsi rdi r8 r9*/
 
 
-movq %rax,%r12
+movq $0xFFF,%r12
 
 
 

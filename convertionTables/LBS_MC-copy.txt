@@ -39,11 +39,6 @@ movq $YY,%rax
 
 {0x48,0xc7,0xc0,YY,YY,YY,YY}
 
-retorno de aritimetica (?)
-
-movq %r12,%rax
-
-{0x4c,0x89,0xe0}
 
 ========================
 
