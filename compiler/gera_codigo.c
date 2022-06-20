@@ -37,7 +37,8 @@ typedef struct __var
 var *parseLineToVar(string line, int *size);
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry);
 unsigned char *convertionWrapper(string buffer, funcp *entry);
-byte *fixCallIndexes(byte *code, int *callsIndexes, int *functionIndexes);
+byte *fixCallIndexes(byte *code, int *callsIndexes, int *functionIndexes,
+int callsSize, int functionsSize);
 
 // funcaoes de buffer
 string generateBuffer(FILE *f);
@@ -51,7 +52,7 @@ byte *generateCall(byte *code, int *currentSize, int *maxSize, int index, int *n
 byte *generateAssigmentOneToOne(byte *code, int *currentSize, int *maxSize, var v);
 byte *generateOperation(byte *code, int *currentSize, int *maxSize,
                         var v1, var op, var v2);
-byte *generateZret(byte *code, int *currentSize, int *maxSize, var v, int distanceToLabel);
+byte *generateZret(byte *code, int *currentSize, int *maxSize, var cmp,var v1);
 byte *generateSum(byte *code, int *currentSize, int *maxSize, var v1);
 byte *generateSub(byte *code, int *currentSize, int *maxSize, var v1);
 byte *generateMul(byte *code, int *currentSize, int *maxSize, var v1);
@@ -136,10 +137,58 @@ unsigned char *convertionWrapper(string buffer, funcp *entry)
             brake;
         case 'r':
             tempVars = parseLineToVar(lines[i], &auxTempVars);
+            code = generateZret(code, &currentSize, &maxSize, tempVars[0], tempVars[1]);
+            code = generateReturn(code, &currentSize,
+                                  &maxSize, tempsVars[1]);
+        default:
+            break;
         }
     }
-
+    code = fixCallIndexes(code, callerIndexes, functionsIndexes, callsIndexesSize, functionIndexesSize);
     // botar o indice da ultima funcao aqui indices 5-8
+
+    return code;
+}
+
+/*
+    Funcao responsavel para gerar o codigo de maquina de
+    return if zero (zret)
+
+    codigo de maquina equivalente:
+
+    movq -x(%rsp), %r12
+    cmp $0, %r12
+    jne pula
+
+    movq YY, %rax
+    leave
+    ret
+pula:
+    . . .
+
+
+    movq YY, %rax
+    leave
+    ret
+    sao feitos fora desta funcao
+
+*/
+byte *generateZret(byte* code, int* currentSize,int *maxSize,var v1,var v2){
+    byte mov[4] = varToR12(v1.value); //mov
+    byte cmpTo0[4] = {0x49,0x83,0xfc,0x00}; // cmp $0, %r12
+    byte jump[2]; 
+    if(v2.isVar==1){ // se v2 for variavel
+        jump[0] = 0x75;
+        jump[1] = 0x06;
+    }else{ // se v2 for constante
+        jump[0] = 0x75;
+        jump[1] = 0x09;
+    } // jne
+    code = doubleSize(code,maxSize, *currentSize+10>=*maxSize);
+    code = pushMachineCode(code,mov,*currentSize,4);
+    code = pushMachineCode(code,cmpTo0,*currentSize,4);
+    code = pushMachineCode(code,jump,*currentSize,2);
+    return code;
 }
 
 /*
@@ -629,51 +678,48 @@ var *parseLineToVar(string line, int *size)
     string *pieces = brakeInto(line, size, ' '); // quebra em espacos
     var *vars = malloc(sizeof(var) * (*size));   // aloca memoria para as variaveis
     char firstLetter;                            // primeira letra da linha
+    int j =0; //indice de var[]
     for (int i = 0; i < *size; i++)
     { // para cada variavel
         firstLetter = pieces[i].value[0];
         switch (firstLetter)
         {
         case 'v':
-            vars[i].value = pieces[i].value[1] - '0'; // pega o valor da variavel
-            vars[i].isVar = 1;                        // variavel
+            vars[j].value = pieces[i].value[1] - '0'; // pega o valor da variavel
+            vars[j].isVar = 1;                        // variavel
             break;
         case '$':
             char *aux = (char *)removeFirstChar(pieces[i].value);
-            vars[i].isVar = 0;         // constante
-            vars[i].value = atoi(aux); // pega o valor da constante
+            vars[j].isVar = 0;         // constante
+            vars[j].value = atoi(aux); // pega o valor da constante
             break;
         case '+':
-            vars[i].isVar = -1; // operacao
-            vars[i].value = 1;  // soma
+            vars[j].isVar = -1; // operacao
+            vars[j].value = 1;  // soma
             break;
         case '-':
-            vars[i].isVar = -1; // operacao
-            vars[i].value = 2;  // subtracao
+            vars[j].isVar = -1; // operacao
+            vars[j].value = 2;  // subtracao
             break;
         case '*':
-            vars[i].isVar = -1; // operacao
-            vars[i].value = 3;  // multiplicacao
+            vars[j].isVar = -1; // operacao
+            vars[j].value = 3;  // multiplicacao
             break;
         case 'c':
-            vars[i].isVar = -1; // operacao
-            vars[i].value = 4;  // call
-            break;
-        case '=': // volta um pois esta informacao e desnecessaria
-            i--;
+            vars[j].isVar = -1; // operacao
+            vars[j].value = 4;  // call
             break;
         default:
             if (firstLetter - '0' >= 0 && firstLetter - '0' <= 9)
             {
-                vars[i].value = atoi(pieces[i].value[1]); // pega o valor de indice de funcao
-                vars[i].isVar = 2;                        // indice de funcao
-            }
-            else
-            {
-                i--; // considerando que tem algum espaco no lugar errado;
+                vars[j].value = atoi(pieces[i].value[1]); // pega o valor de indice de funcao
+                vars[j].isVar = 2;                        // indice de funcao
+            }else{ // caso seja = , ret, zret ou qualquer outra coisa ignora o pedaco
+                j--;
             }
             break;
         }
+        j++;
     }
     return vars;
 }
@@ -872,6 +918,13 @@ byte *pushMachineCode(byte *array, byte *code, int *sizeArray, int sizeCode)
     *sizeArray += sizeCode; // incrementa o tamanho do buffer
     return array;
 }
+
+
+byte * fixCallIndexes(byte *code,int *callers, int *functions,int sizeCallers,int sizeFunctions){
+    
+    return code;
+}
+
 
 /*
 

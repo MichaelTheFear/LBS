@@ -242,7 +242,7 @@ cmp $0,%r12
 {0x49,0x83,0xfc,0x00}
 
 jne label_continuação
-caso YY seja um registro ou p0
+caso YY seja um var ou p0
 {0x75,0x06}
 
 caso YY seja uma constante
