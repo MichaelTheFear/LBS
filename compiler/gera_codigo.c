@@ -47,7 +47,7 @@ void freeBuffer(string buffer);
 // funcoes de geracao de codigo de maquina
 byte *generateEnd(byte *code, int *currentSize, int *maxSize);
 byte *generateFunction(byte *code, int *currentSize, int *maxSize);
-byte *generateCall(byte *code, int *currentSize, int *maxSize, int index,int *newCaller);
+byte *generateCall(byte *code, int *currentSize, int *maxSize, int index, int *newCaller);
 byte *generateAssigmentOneToOne(byte *code, int *currentSize, int *maxSize, var v);
 byte *generateOperation(byte *code, int *currentSize, int *maxSize,
                         var v1, var op, var v2);
@@ -119,8 +119,9 @@ unsigned char *convertionWrapper(string buffer, funcp *entry)
             if (auxTempVars != 2)
             {
                 code = generateOperation(code, &currentSize, &maxSize,
-                                         tempVars[1], tempVars[2], tempVars[3],&newCaller);
-                if(newCaller!=-1){
+                                         tempVars[1], tempVars[2], tempVars[3], &newCaller);
+                if (newCaller != -1)
+                {
                     callerIndexes[callsIndexesSize] = newCaller;
                     callsIndexesSize++;
                     newCaller = -1;
@@ -141,21 +142,24 @@ unsigned char *convertionWrapper(string buffer, funcp *entry)
     // botar o indice da ultima funcao aqui indices 5-8
 }
 
-
-byte *generateImul(var v,int *len){
-    byte * codeToPush;
-    if(v.isVar == 1){
+byte *generateImul(var v, int *len)
+{
+    byte *codeToPush;
+    if (v.isVar == 1)
+    {
         *len = 5;
-        codeToPush = malloc(sizeof(byte)*(*len));
+        codeToPush = malloc(sizeof(byte) * (*len));
         codeToPush[0] = 0x4c;
         codeToPush[1] = 0x0f;
         codeToPush[2] = 0xaf;
         codeToPush[3] = 0x65;
         codeToPush[4] = varInMC(v.value);
-    }else{
-        byte aux[4] = intToBytes(v.value,0);
+    }
+    else
+    {
+        byte aux[4] = intToBytes(v.value, 0);
         *len = 7;
-        codeToPush = malloc(sizeof(byte)*(*len));
+        codeToPush = malloc(sizeof(byte) * (*len));
         codeToPush[0] = 0x4d;
         codeToPush[1] = 0x69;
         codeToPush[2] = 0xe4;
@@ -167,21 +171,23 @@ byte *generateImul(var v,int *len){
     return codeToPush;
 }
 
-
-
-byte *generateSub(var v,int *len){
-    byte * codeToPush;
-    if(v.isVar == 1){
+byte *generateSub(var v, int *len)
+{
+    byte *codeToPush;
+    if (v.isVar == 1)
+    {
         *len = 4;
-        codeToPush = malloc(sizeof(byte)*(*len));
+        codeToPush = malloc(sizeof(byte) * (*len));
         codeToPush[0] = 0x4c;
         codeToPush[1] = 0x2b;
         codeToPush[2] = 0x65;
         codeToPush[3] = varInMC(v.value);
-    }else{
-        byte aux[4] = intToBytes(v.value,0);
+    }
+    else
+    {
+        byte aux[4] = intToBytes(v.value, 0);
         *len = 7;
-        codeToPush = malloc(sizeof(byte)*(*len));
+        codeToPush = malloc(sizeof(byte) * (*len));
         codeToPush[0] = 0x49;
         codeToPush[1] = 0x81;
         codeToPush[2] = 0xec;
@@ -197,19 +203,23 @@ byte *generateSub(var v,int *len){
     Funcao responsavel para gerar o codigo de maquina
     de soma
 */
-byte *generateSum(var v,int *len){
-    byte * codeToPush;
-    if(v.isVar == 1){
+byte *generateSum(var v, int *len)
+{
+    byte *codeToPush;
+    if (v.isVar == 1)
+    {
         *len = 4;
-        codeToPush = malloc(sizeof(byte)*(*len));
+        codeToPush = malloc(sizeof(byte) * (*len));
         codeToPush[0] = 0x4c;
         codeToPush[1] = 0x03;
         codeToPush[2] = 0x65;
         codeToPush[3] = varInMC(v.value);
-    }else{
-        byte aux[4] = intToBytes(v.value,0);
+    }
+    else
+    {
+        byte aux[4] = intToBytes(v.value, 0);
         *len = 7;
-        codeToPush = malloc(sizeof(byte)*(*len));
+        codeToPush = malloc(sizeof(byte) * (*len));
         codeToPush[0] = 0x49;
         codeToPush[1] = 0x81;
         codeToPush[2] = 0xc4;
@@ -221,9 +231,10 @@ byte *generateSum(var v,int *len){
     return codeToPush;
 }
 
-byte *generateCall(int funcIndex){
-    byte codeToPush = malloc(sizeof(byte)*8);
-    byte aux[4] = intToBytes(funcIndex,0);
+byte *generateCall(int funcIndex)
+{
+    byte codeToPush = malloc(sizeof(byte) * 8);
+    byte aux[4] = intToBytes(funcIndex, 0);
     codeToPush[0] = 0xe8;
     codeToPush[1] = aux[0];
     codeToPush[2] = aux[1];
@@ -235,24 +246,28 @@ byte *generateCall(int funcIndex){
     return codeToPush;
 }
 
-
 /*
     Funcao responsavel por gerar o codigo de maquina
     das operacoes aritimeticas ou de chamada de funcao
 */
 
-byte *generateOperation(byte* code, int* currentSize,int *maxSize, 
-var v1, var op, var v2,int * newCaller){
-    byte * mov;
-    byte * operation;
+byte *generateOperation(byte *code, int *currentSize, int *maxSize,
+                        var v1, var op, var v2, int *newCaller)
+{
+    byte *mov;
+    byte *operation;
     int lenMov;
     int lenOperation;
-    if(v1.isVar!=-1){
-        if(v1.isVar == 1){
+    if (v1.isVar != -1)
+    {
+        if (v1.isVar == 1)
+        {
             lenMov = 4;
             mov = malloc(sizeof(byte) * lenMov);
             mov = varToR12(v1.value);
-        }else{
+        }
+        else
+        {
             byte constInBytes[4] = intToBytes(v1.value, 0);
             lenMov = 7;
             mov = malloc(sizeof(byte) * lenMov);
@@ -264,22 +279,32 @@ var v1, var op, var v2,int * newCaller){
             mov[5] = constInBytes[2];
             mov[6] = constInBytes[3];
         }
-        if(op.value==1){
-            operation = generateSum(code,currentSize,maxSize,v2,&lenOperation);
-        }else if(op.value==2){
-            operation = generateSub(code,currentSize,maxSize,v2,&lenOperation);
-        }else{
-            operation = generateMul(code,currentSize,maxSize,v2,&lenOperation);
+        if (op.value == 1)
+        {
+            operation = generateSum(code, currentSize, maxSize, v2, &lenOperation);
         }
-    }else{
-        if(v1.isVar == 1){
+        else if (op.value == 2)
+        {
+            operation = generateSub(code, currentSize, maxSize, v2, &lenOperation);
+        }
+        else
+        {
+            operation = generateMul(code, currentSize, maxSize, v2, &lenOperation);
+        }
+    }
+    else
+    {
+        if (v1.isVar == 1)
+        {
             lenMov = 4;
             mov = malloc(sizeof(byte) * lenMov);
             mov[0] = 0x48;
             mov[1] = 0x8b;
             mov[2] = 0x7d;
             mov[3] = varInMC(v1.value);
-        }else{
+        }
+        else
+        {
             byte constInBytes[4] = intToBytes(v1.value, 0);
             lenMov = 7;
             mov = malloc(sizeof(byte) * lenMov);
@@ -293,12 +318,12 @@ var v1, var op, var v2,int * newCaller){
         }
         operation = generateCall();
         lenOperation = 5;
-        *newCaller = lenMov+(*currentSize);
+        *newCaller = lenMov + (*currentSize);
     }
-    
-    code = doubleSize(code,maxSize, *currentSize+(lenOperation+lenMov)>=*maxSize);
-    code = pushMachineCode(code,mov,*currentSize,lenMov);
-    code = pushMachineCode(code,operation,*currentSize,lenOperation);
+
+    code = doubleSize(code, maxSize, *currentSize + (lenOperation + lenMov) >= *maxSize);
+    code = pushMachineCode(code, mov, *currentSize, lenMov);
+    code = pushMachineCode(code, operation, *currentSize, lenOperation);
     free(mov);
     free(operation);
     return code;
@@ -481,13 +506,12 @@ byte *generateCaller(byte *code, int *currentSize, int *maxSize)
     return code;
 }
 
-byte *varToR12(int varN){
+byte *varToR12(int varN)
+{
     byte lastByte = varInMC(varN);
-    byte res[4] = {0x4c,0x8b,0x65, lastByte};
+    byte res[4] = {0x4c, 0x8b, 0x65, lastByte};
     return res;
-}   
-
-
+}
 
 /*
     Dado uma linha do arquivo decompoe-la em uma variavel,
@@ -681,18 +705,18 @@ byte *intToBytes(int x, int fillFF)
 
 string removeFirstChar(string s)
 {
-    string new_str;
-    new_str = (string)malloc(sizeof(char) * (strlen(s) - 1));
-    int i;
+    string newstr;
+    newstr.len = s.len - 1;
+    newstr.value = (char *)malloc(sizeof(char) * newstr.len);
 
-    for (i = 0; i < strlen(s); i++)
+    for (int i = 0; i < s.len; i++)
     {
-        new_str[i] = s[i + 1];
+        newstr.value[i] = s.value[i + 1];
     }
 
-    new_str[i] = '\0';
+    newstr.value[newstr.len] = '\0';
 
-    return new_str;
+    return newstr;
 }
 
 /*
