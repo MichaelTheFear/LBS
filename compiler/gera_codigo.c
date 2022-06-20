@@ -174,12 +174,10 @@ byte *generateImul(var v,int *len){
 }
 
 
-
 /*
     Funcao responsavel para gerar o codigo de maquina
     de subitracao (olhar comentario a cima de generateOperation)
 */
-
 
 byte *generateSub(var v,int *len){
     byte * codeToPush;
