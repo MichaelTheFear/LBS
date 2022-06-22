@@ -47,47 +47,37 @@ string *breakInto(string buffer, int *size, char c)
 
     new_str = (string *)malloc(count * sizeof(string));
 
-    // loop through the buffer and break it into words
-    for (i = 0, j = 0; i < buffer.len; i++)
+    // loop through the buffer and break it into words but do not concatenate with the char c
+    // store the splited strings in the array and if the end of the string is reached, store the last string
+    for (i = 0, j = 0, k = 0; i < buffer.len; i++)
     {
         if (buffer.value[i] == c)
         {
-            new_str[j].len = len;
-            new_str[j].value = (char *)malloc(len * sizeof(char));
-
-            for (k = 0; k < len; k++)
-            {
-                new_str[j].value[k] = buffer.value[k + i - len];
-            }
-            len = 0;
+            new_str[j].len = k;
+            new_str[j].value = (char *)malloc(k * sizeof(char));
+            memcpy(new_str[j].value, &buffer.value[i - k], k);
+            k = 0;
             j++;
         }
-
         else
         {
-            len++;
+            k++;
         }
 
         if (i == buffer.len - 1)
         {
-            new_str[j].len = len;
-            new_str[j].value = (char *)malloc(len * sizeof(char));
-
-            for (k = 0; k < len; k++)
-            {
-                new_str[j].value[k] = buffer.value[k + i - len];
-            }
-
-            len = 0;
-            j++;
+            new_str[j].len = k;
+            new_str[j].value = (char *)malloc(k * sizeof(char));
+            memcpy(new_str[j].value, &buffer.value[i - k + 1], k);
         }
+
+        len += k;
     }
 
     *size = count;
 
     return new_str;
 }
-
 string removeFirstChar(string s)
 {
     string newstr;
@@ -104,43 +94,6 @@ string removeFirstChar(string s)
     return newstr;
 }
 
-/*
-Dado bytes, retorna um array de 4 bytes, em little Endian
-(basicamente o inverso do array).
-Se fillFF for 1, o resto do array é preenchido com 0xFF.
-Caso o contrario com 0x00.
-*/
-// byte *littleThatEndian(byte *bytes, int fillFF)
-// {
-//     byte *array = malloc(sizeof(byte) * 4);
-//     array[0] = bytes[3];
-//     array[1] = bytes[2];
-//     array[2] = bytes[1];
-//     array[3] = bytes[0];
-//     if (fillFF)
-//     {
-//         array[0] = 0xFF;
-//         array[1] = 0xFF;
-//         array[2] = 0xFF;
-//         array[3] = 0xFF;
-//     }
-
-//     else
-//     {
-//         array[0] = 0x00;
-//         array[1] = 0x00;
-//         array[2] = 0x00;
-//         array[3] = 0x00;
-//     }
-
-//     return array;
-// }
-
-/*
-Dados um inteiro, retorna um array de 4 bytes, em little Endian
-se fill FF for 1 o resto do array é preenchido com 0xFF.
-Caso contrario com 0x00.
-*/
 byte *intToBytes(int x, int fillFF)
 {
     byte *array = malloc(sizeof(byte) * 4);
