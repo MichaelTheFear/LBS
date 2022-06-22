@@ -31,12 +31,11 @@ int main(void)
 
 string *breakInto(string buffer, int *size, char c)
 {
-    string *new_str; // array of strings
+    string *new_str;
     int i, j, k;
     int len = 0;
     int count = 0;
 
-    // loop through the buffer and count the number of times c appears
     for (i = 0; i < buffer.len; i++)
     {
         if (buffer.value[i] == c)
