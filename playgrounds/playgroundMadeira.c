@@ -47,8 +47,6 @@ string *breakInto(string buffer, int *size, char c)
 
     new_str = (string *)malloc(count * sizeof(string));
 
-    // loop through the buffer and break it into words but do not concatenate with the char c
-    // store the splited strings in the array and if the end of the string is reached, store the last string
     for (i = 0, j = 0, k = 0; i < buffer.len; i++)
     {
         if (buffer.value[i] == c)
