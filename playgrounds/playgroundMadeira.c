@@ -11,70 +11,68 @@ typedef struct __string
 typedef unsigned char byte;
 
 // funcoes auxiliares
-string *breakInto(string buffer, int *size, char c); // TODO M
-byte *littleThatEndian(byte *bytes, int fillFF);     // TODO M
-byte *intToBytes(int x, int fillFF);                 // TODO M
+// string *breakInto(string buffer, int *size, char c); // TODO M
+byte *littleThatEndian(byte *bytes, int fillFF); // TODO M
+byte *intToBytes(int x, int fillFF);             // TODO M
 string removeFirstChar(string s);
+int split(string *txt, char delim, char ***tokens);
 
 int main(void)
 {
-    // test the breakInto function using a string with two words separated by the char c
-    string buffer = {.len = 10, .value = "gabrielcmadeira"};
-    int size;
-    string *words = breakInto(buffer, &size, 'c');
-    printf("%s\n", words[0].value);
-    printf("%s\n", words[1].value);
-    printf("%d\n", size);
+
+    string *str;
+    str = malloc(sizeof(string));
+    str->value = malloc(sizeof(char) * 10);
+    str->value = "test func";
+    char **tokens;
+    int count, i;
+
+    count = split(str, ' ', &tokens);
+
+    for (i = 0; i < count; i++)
+        printf("%s", tokens[i]);
+
+    for (i = 0; i < count; i++)
+        free(tokens[i]);
+    free(tokens);
 
     return 0;
 }
 
-string *breakInto(string buffer, int *size, char c)
+int split(string *txt, char delim, char ***tokens)
 {
-    string *new_str;
-    int i, j, k;
-    int len = 0;
-    int count = 0;
+    int *tklen, *t, count = 1;
+    char **arr, *p = txt->value;
 
-    for (i = 0; i < buffer.len; i++)
+    while (*p != '\0')
+        if (*p++ == delim)
+            count += 1;
+
+    t = tklen = calloc(count, sizeof(int));
+
+    for (p = (char *)txt->value; *p != '\0'; p++)
+        *p == delim ? *t++ : (*t)++;
+
+    *tokens = arr = malloc(count * sizeof(char *));
+    t = tklen;
+    p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
+
+    while (*txt->value != '\0')
     {
-        if (buffer.value[i] == c)
+        if (*txt->value == delim)
         {
-            count++;
+            p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
+            *txt->value++;
         }
-    }
 
-    new_str = (string *)malloc(count * sizeof(string));
-
-    for (i = 0, j = 0, k = 0; i < buffer.len; i++)
-    {
-        if (buffer.value[i] == c)
-        {
-            new_str[j].len = k;
-            new_str[j].value = (char *)malloc(k * sizeof(char));
-            memcpy(new_str[j].value, &buffer.value[i - k], k);
-            k = 0;
-            j++;
-        }
         else
-        {
-            k++;
-        }
-
-        if (i == buffer.len - 1)
-        {
-            new_str[j].len = k;
-            new_str[j].value = (char *)malloc(k * sizeof(char));
-            memcpy(new_str[j].value, &buffer.value[i - k + 1], k);
-        }
-
-        len += k;
+            *p++ = *txt->value++;
     }
 
-    *size = count;
-
-    return new_str;
+    free(tklen);
+    return count;
 }
+
 string removeFirstChar(string s)
 {
     string newstr;
