@@ -38,7 +38,7 @@ var *parseLineToVar(string line, int *size);
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry);
 unsigned char *convertionWrapper(string buffer, funcp *entry);
 byte *fixCallIndexes(byte *code, int *callsIndexes, int *functionIndexes,
-int callsSize, int functionsSize);
+                     int callsSize, int functionsSize);
 
 // funcaoes de buffer
 string generateBuffer(FILE *f);
@@ -52,7 +52,7 @@ byte *generateCall(byte *code, int *currentSize, int *maxSize, int index, int *n
 byte *generateAssigmentOneToOne(byte *code, int *currentSize, int *maxSize, var v);
 byte *generateOperation(byte *code, int *currentSize, int *maxSize,
                         var v1, var op, var v2);
-byte *generateZret(byte *code, int *currentSize, int *maxSize, var cmp,var v1);
+byte *generateZret(byte *code, int *currentSize, int *maxSize, var cmp, var v1);
 byte *generateSum(byte *code, int *currentSize, int *maxSize, var v1);
 byte *generateSub(byte *code, int *currentSize, int *maxSize, var v1);
 byte *generateMul(byte *code, int *currentSize, int *maxSize, var v1);
@@ -173,21 +173,25 @@ pula:
     sao feitos fora desta funcao
 
 */
-byte *generateZret(byte* code, int* currentSize,int *maxSize,var v1,var v2){
-    byte mov[4] = varToR12(v1.value); //mov
-    byte cmpTo0[4] = {0x49,0x83,0xfc,0x00}; // cmp $0, %r12
-    byte jump[2]; 
-    if(v2.isVar==1){ // se v2 for variavel
+byte *generateZret(byte *code, int *currentSize, int *maxSize, var v1, var v2)
+{
+    byte mov[4] = varToR12(v1.value);          // mov
+    byte cmpTo0[4] = {0x49, 0x83, 0xfc, 0x00}; // cmp $0, %r12
+    byte jump[2];
+    if (v2.isVar == 1)
+    { // se v2 for variavel
         jump[0] = 0x75;
         jump[1] = 0x06;
-    }else{ // se v2 for constante
+    }
+    else
+    { // se v2 for constante
         jump[0] = 0x75;
         jump[1] = 0x09;
     } // jne
-    code = doubleSize(code,maxSize, *currentSize+10>=*maxSize);
-    code = pushMachineCode(code,mov,*currentSize,4);
-    code = pushMachineCode(code,cmpTo0,*currentSize,4);
-    code = pushMachineCode(code,jump,*currentSize,2);
+    code = doubleSize(code, maxSize, *currentSize + 10 >= *maxSize);
+    code = pushMachineCode(code, mov, *currentSize, 4);
+    code = pushMachineCode(code, cmpTo0, *currentSize, 4);
+    code = pushMachineCode(code, jump, *currentSize, 2);
     return code;
 }
 
@@ -230,9 +234,11 @@ byte *generateImul(var v, int *len)
     de subitracao (olhar comentario a cima de generateOperation)
 */
 
-byte *generateSub(var v,int *len){
-    byte * codeToPush;
-    if(v.isVar == 1){
+byte *generateSub(var v, int *len)
+{
+    byte *codeToPush;
+    if (v.isVar == 1)
+    {
         *len = 4;
         codeToPush = malloc(sizeof(byte) * (*len));
         codeToPush[0] = 0x4c;
@@ -678,7 +684,7 @@ var *parseLineToVar(string line, int *size)
     string *pieces = brakeInto(line, size, ' '); // quebra em espacos
     var *vars = malloc(sizeof(var) * (*size));   // aloca memoria para as variaveis
     char firstLetter;                            // primeira letra da linha
-    int j =0; //indice de var[]
+    int j = 0;                                   // indice de var[]
     for (int i = 0; i < *size; i++)
     { // para cada variavel
         firstLetter = pieces[i].value[0];
@@ -714,7 +720,9 @@ var *parseLineToVar(string line, int *size)
             {
                 vars[j].value = atoi(pieces[i].value[1]); // pega o valor de indice de funcao
                 vars[j].isVar = 2;                        // indice de funcao
-            }else{ // caso seja = , ret, zret ou qualquer outra coisa ignora o pedaco
+            }
+            else
+            { // caso seja = , ret, zret ou qualquer outra coisa ignora o pedaco
                 j--;
             }
             break;
@@ -919,12 +927,11 @@ byte *pushMachineCode(byte *array, byte *code, int *sizeArray, int sizeCode)
     return array;
 }
 
+byte *fixCallIndexes(byte *code, int *callers, int *functions, int sizeCallers, int sizeFunctions)
+{
 
-byte * fixCallIndexes(byte *code,int *callers, int *functions,int sizeCallers,int sizeFunctions){
-    
     return code;
 }
-
 
 /*
 

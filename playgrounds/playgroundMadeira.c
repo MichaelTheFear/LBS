@@ -11,31 +11,81 @@ typedef struct __string
 typedef unsigned char byte;
 
 // funcoes auxiliares
-string *brakeInto(string buffer, int *size, char c); // TODO M
+string *breakInto(string buffer, int *size, char c); // TODO M
 byte *littleThatEndian(byte *bytes, int fillFF);     // TODO M
 byte *intToBytes(int x, int fillFF);                 // TODO M
 string removeFirstChar(string s);
 
 int main(void)
 {
-    // byte *bytes;
-    // int num = 5;
-
-    // bytes = intToBytes(num, 1);
-
-    // for (int i = 0; i < 4; i++)
-    // {
-    //     printf("%d ", bytes[i]);
-    // }
-    // printf("\n");
-
-    string buffer = {5, "teste"};
-    string newstr;
-
-    newstr = removeFirstChar(buffer);
-    printf("%s\n", newstr.value);
+    // test the breakInto function using a string with two words separated by the char c
+    string buffer = {.len = 10, .value = "gabrielcmadeira"};
+    int size;
+    string *words = breakInto(buffer, &size, 'c');
+    printf("%s\n", words[0].value);
+    printf("%s\n", words[1].value);
+    printf("%d\n", size);
 
     return 0;
+}
+
+string *breakInto(string buffer, int *size, char c)
+{
+    string *new_str; // array of strings
+    int i, j, k;
+    int len = 0;
+    int count = 0;
+
+    // loop through the buffer and count the number of times c appears
+    for (i = 0; i < buffer.len; i++)
+    {
+        if (buffer.value[i] == c)
+        {
+            count++;
+        }
+    }
+
+    new_str = (string *)malloc(count * sizeof(string));
+
+    // loop through the buffer and break it into words
+    for (i = 0, j = 0; i < buffer.len; i++)
+    {
+        if (buffer.value[i] == c)
+        {
+            new_str[j].len = len;
+            new_str[j].value = (char *)malloc(len * sizeof(char));
+
+            for (k = 0; k < len; k++)
+            {
+                new_str[j].value[k] = buffer.value[k + i - len];
+            }
+            len = 0;
+            j++;
+        }
+
+        else
+        {
+            len++;
+        }
+
+        if (i == buffer.len - 1)
+        {
+            new_str[j].len = len;
+            new_str[j].value = (char *)malloc(len * sizeof(char));
+
+            for (k = 0; k < len; k++)
+            {
+                new_str[j].value[k] = buffer.value[k + i - len];
+            }
+
+            len = 0;
+            j++;
+        }
+    }
+
+    *size = count;
+
+    return new_str;
 }
 
 string removeFirstChar(string s)
@@ -53,39 +103,6 @@ string removeFirstChar(string s)
 
     return newstr;
 }
-
-// string *brakeInto(string buffer, int *size, char c)
-// {
-//     string *array;
-//     int i = 0, j = 0;
-
-//     for (i = 0; i < strlen(buffer.len); i++)
-//     {
-//         if (buffer.value[i] == c)
-//         {
-//             j++;
-//         }
-//     }
-
-//     array = (string *)malloc(sizeof(string) * j);
-//     *size = j;
-
-//     j = 0;
-//     for (i = 0; i < strlen(buffer); i++)
-//     {
-//         if (buffer[i] == c)
-//         {
-//             array[j] = (string)malloc(sizeof(char) * i);
-//             strncpy(array[j], buffer, i);
-//             j++;
-
-//             buffer += i + 1;
-//             i = -1;
-//         }
-//     }
-
-// return array;
-// }
 
 /*
 Dado bytes, retorna um array de 4 bytes, em little Endian
