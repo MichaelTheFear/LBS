@@ -13,13 +13,17 @@ int boo(int d,int n){
     return v[n-1];
 }
 */
- pushq %rbp
-movq %rsp,%rbp
- subq $48,%rsp
-movq %rdi,-48(%rbp)
-movq $10, %rax
-leave
-ret
+
+    pushq %rbp
+    movq %rsp,%rbp
+    subq $48,%rsp
+    movq %rdi,-48(%rbp)
+    movq $0xFFF, -40(%rbp)
+    movq -40(%rbp),%r12
+    movq %r12,-32(%rbp)
+    movq -32(%rbp),%rax
+    leave
+    ret    
 
 
 

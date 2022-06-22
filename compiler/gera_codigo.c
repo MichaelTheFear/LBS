@@ -517,7 +517,7 @@ byte *generateAssigmentOneToOne(byte *code, int *currentSize, int *maxSize, var 
 
     byte codeToPush[8];
     byte * aux;
-    if (v1.isVar == 0) // se for constante
+    if (v2.isVar == 0) // se for constante
     {
         aux = intToBytes(v2.value);
         codeToPush[0] = 0x48;
@@ -531,7 +531,7 @@ byte *generateAssigmentOneToOne(byte *code, int *currentSize, int *maxSize, var 
     }
     else
     {
-        aux = varToR12(v1.value); // codigo para mover para o registro auxiliar
+        aux = varToR12(v2.value); // codigo para mover para o registro auxiliar
         codeToPush[0] = aux[0];
         codeToPush[1] = aux[1];
         codeToPush[2] = aux[2];
@@ -539,7 +539,7 @@ byte *generateAssigmentOneToOne(byte *code, int *currentSize, int *maxSize, var 
         codeToPush[4] = 0x4c;
         codeToPush[5] = 0x89;
         codeToPush[6] = 0x65;
-        codeToPush[7] = varInMC(v2.value); // pega o byte que representa a variavel 2
+        codeToPush[7] = varInMC(v1.value); // pega o byte que representa a variavel 2
     }
 
     code = doubleSize(code, maxSize, *currentSize + 8 >= *maxSize); // verifica se o tamanho do codigo de maquina eh maior que o tamanho maximo
@@ -573,6 +573,7 @@ byte *generateReturn(byte *code, int *currentSize, int *maxSize, var v)
     int size;
     if (v.isVar == 1)
     { // se for variavel ou argumento
+        printf("\n?\n");
         size = 4;
         codeToPush = malloc(sizeof(byte) * 4);
         codeToPush[0] = 0x48;
@@ -957,38 +958,50 @@ void printBytes(byte * bytes,int size){
 
 
 
-byte * testGenFunc(){
-    int maxSize = 30;
-    int size = 0;
+byte * testGenFunc(int * maxSize,int * size){
     byte * code;
-    code = (byte *)malloc(sizeof(byte) * maxSize);
-    code = generateFunction(code, &size, &maxSize);
-    printBytes(code, size);
-    printf("Size: %d\n",size);
+    code = (byte *)malloc(sizeof(byte) * (*maxSize));
+    code = generateFunction(code, size, maxSize);
+    printBytes(code, *size);
+    printf("Size: %d\n",*size);
     return code;
 }
-byte * testGenAssigmentOneToOne(){
-    
+byte * testAssigmentOneToOne(byte * code,int * maxSize, int * size){
+
+    code = testGenFunc(maxSize,size);
+    var v1,v2;
+    v2.isVar = 0;
+    v2.value = 0xFFF;
+    v1.isVar = 1;
+    v1.value = 0;
+    code = generateAssigmentOneToOne(code, size, maxSize,v1,v2);
+    printBytes(code, *size);
+    printf("Size a: %d\n",*size);
+    v2.isVar = 1;
+    v2.value = 0;
+    v1.isVar = 1;
+    v1.value = 1;
+    code = generateAssigmentOneToOne(code, size, maxSize,v1,v2);
+    printf("Size a: %d\n",*size);
+    return code;
 }
-byte * testGenReturn(){
-    byte * code = testGenFunc();
+byte * testGenReturn(int * maxSize, int * size){
+    byte * code = testAssigmentOneToOne(code,maxSize, size);
     var v1;
-    v1.isVar = 0;
-    v1.value = 10;
-    int maxSize = 30;
-    int size = 12;
-    code = generateReturn(code, &size, &maxSize,v1);
-    printBytes(code, size);
-    printf("Size: %d\n",size);
+    v1.isVar = 1;
+    v1.value = 1;
+    code = generateReturn(code, size, maxSize,v1);
+    printf("Size 2: %d\n",* size);
+    printBytes(code,* size);
     return code;
 }
 byte * testGenEnd(){
-    byte * code = testGenReturn();
     int maxSize = 30;
-    int size = 19;
+    int size = 0;
+    byte * code = testGenReturn(&maxSize,&size);
     code = generateEnd(code, &size, &maxSize);
     printBytes(code, size);
-    printf("Size: %d\n",size);
+    printf("Size 3: %d\n",size);
     return code;
 }
 int testVarToR12(){
@@ -1076,8 +1089,10 @@ int main(){
     testVarOrConst();
     testVarToR12();
     byte * code = testGenEnd(); //faltadno um free ate aq
+    printf("\n %02x\n",code[27]);
+    
     funcp f = (funcp)code;
-    printf("Res f: %d\n",f(1));
+    printf("Res f: %d\n",f(2));
     free(code);
     return 0;
 }
