@@ -1,7 +1,34 @@
 /*rax r12 rdx rsi rdi r8 r9*/
 
 
-movq $0xFFF,%r12
+/*
+int boo(int d,int n){
+    int i;
+    int v[n];
+
+    v[0] = d;
+    for(i=1;i<n;i++){
+        v[i] = v[i-1]*d;
+    }
+    return v[n-1];
+}
+*/
+pushq %rbp
+movq %rsp, %rbp
+sub $32, %rsp
+movq $0, -8(%rbp)
+movq $1, -16(%rbp)
+movq $2, -24(%rbp)
+leaq -8(%rbp),%rdx /*Pega ponteiro*/
+subq $8, %rdx /*passa para o proximo*/
+movq (%rdx),%rax /*pega o valor*/
+leave
+ret
+
+
+
+
+
 
 
 

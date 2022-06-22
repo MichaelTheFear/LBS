@@ -36,7 +36,7 @@ typedef struct __var
 // funcoes de interpretacao de codigo de maquina
 var *parseLineToVar(string line, int *size);
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry);
-unsigned char *convertionWrapper(string buffer, funcp *entry);
+unsigned char *convertionWrapper(string buffer, funcp *entry, int *starterIndex);
 byte *fixCallIndexes(byte *code, int *callsIndexes, int *functionIndexes,
                      int callsSize, int functionsSize);
 
@@ -65,7 +65,7 @@ byte *generateCaller(byte *code, int *currentSize, int *maxSize);
 string *brakeInto(string buffer, int *size, char c);
 byte *stackPosition(int varNum);
 byte *littleThatEndian(byte *bytes, int fillFF);
-byte *intToBytes(int x, int fillFF);
+byte *intToBytes(int x);
 void *doubleSize(void *ptr, int *size, int condition);
 byte varInMC(int varNum);
 byte *varOrConstBytes(var v, int *size);
@@ -75,11 +75,13 @@ string removeFirstChar(string s);
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry)
 {
     string buffer = generateBuffer(f);
-    code = (unsigned char *)convertionWrapper(buffer, entry);
+    int starterIndex; // indice de comeco da ultima funcao do array de codigo
+    code = (unsigned char *)convertionWrapper(buffer, entry, &starterIndex);
+    entry = (*funcp) & code[starterIndex];
     freeBuffer(buffer);
 }
 
-unsigned char *convertionWrapper(string buffer, funcp *entry)
+unsigned char *convertionWrapper(string buffer, funcp *entry, int *starterIndex)
 {
     int i;                                                 // indice atual do vetor de linhas
     int maxSize = 50;                                      // tamanho inicial maximo do vetor de linhas
@@ -94,8 +96,7 @@ unsigned char *convertionWrapper(string buffer, funcp *entry)
     unsigned char *code = (unsigned char *)malloc(sizeof(unsigned char) * maxSize);
     string *lines = brakeInto(buffer, &nLines, '\n'); // divide o buffer em linhas
     char firstCharacter;
-    var *tempVars;                                       // variaveis temporarias
-    code = generateCaller(code, &currentSize, &maxSize); // gera o codigo que chama a funcao principal
+    var *tempVars; // variaveis temporarias
     for (i = 0; i < nLines; i++)
     {
         firstCharacter = lines[i].value[0];
@@ -146,7 +147,7 @@ unsigned char *convertionWrapper(string buffer, funcp *entry)
     }
     code = fixCallIndexes(code, callerIndexes, functionsIndexes, callsIndexesSize, functionIndexesSize);
     // botar o indice da ultima funcao aqui indices 5-8
-
+    *starterIndex = functionsIndexes[functionIndexesSize];
     return code;
 }
 
@@ -215,7 +216,7 @@ byte *generateImul(var v, int *len)
     }
     else
     {
-        byte aux[4] = intToBytes(v.value, 0);
+        byte aux[4] = intToBytes(v.value);
         *len = 7;
         codeToPush = malloc(sizeof(byte) * (*len));
         codeToPush[0] = 0x4d;
@@ -248,7 +249,7 @@ byte *generateSub(var v, int *len)
     }
     else
     {
-        byte aux[4] = intToBytes(v.value, 0);
+        byte aux[4] = intToBytes(v.value);
         *len = 7;
         codeToPush = malloc(sizeof(byte) * (*len));
         codeToPush[0] = 0x49;
@@ -280,7 +281,7 @@ byte *generateSum(var v, int *len)
     }
     else
     {
-        byte aux[4] = intToBytes(v.value, 0);
+        byte aux[4] = intToBytes(v.value);
         *len = 7;
         codeToPush = malloc(sizeof(byte) * (*len));
         codeToPush[0] = 0x49;
@@ -302,7 +303,7 @@ byte *generateSum(var v, int *len)
 byte *generateCall(int funcIndex)
 {
     byte codeToPush = malloc(sizeof(byte) * 8);
-    byte aux[4] = intToBytes(funcIndex, 0);
+    byte aux[4] = intToBytes(funcIndex);
     codeToPush[0] = 0xe8;
     codeToPush[1] = aux[0];
     codeToPush[2] = aux[1];
@@ -404,8 +405,8 @@ byte *generateOperation(byte *code, int *currentSize, int *maxSize,
             mov = varToR12(v1.value); // mov para o registro auxiliar
         }
         else
-        {                                                   // se primeiro operando for constante
-            byte constInBytes[4] = intToBytes(v1.value, 0); // converte para bytes
+        {                                                // se primeiro operando for constante
+            byte constInBytes[4] = intToBytes(v1.value); // converte para bytes
             lenMov = 7;
             mov = malloc(sizeof(byte) * lenMov);
             mov[0] = 0x49;
@@ -441,8 +442,8 @@ byte *generateOperation(byte *code, int *currentSize, int *maxSize,
             mov[3] = varInMC(v1.value); // numero da variavel
         }
         else
-        {                                                   // move constante para argumento
-            byte constInBytes[4] = intToBytes(v1.value, 0); // converte para bytes
+        {                                                // move constante para argumento
+            byte constInBytes[4] = intToBytes(v1.value); // converte para bytes
             lenMov = 7;
             mov = malloc(sizeof(byte) * lenMov);
             mov[0] = 0x48;
@@ -515,7 +516,7 @@ byte *generateAssigmentOneToOne(byte *code, int *currentSize, int *maxSize, var 
     byte aux[4];
     if (v.isVar == 0) // se for constante
     {
-        aux = intToBytes(v2.value, 0);
+        aux = intToBytes(v2.value);
         codeToPush[0] = 0x48;
         codeToPush[1] = 0xc7;
         codeToPush[2] = 0x45;
@@ -579,7 +580,7 @@ byte *generateReturn(byte *code, int *currentSize, int *maxSize, var v)
     else
     { // se for constante
         size = 7;
-        byte aux[4] = intToBytes(v.value, 0);
+        byte aux[4] = intToBytes(v.value);
         codeToPush = malloc(sizeof(byte) * 7);
         codeToPush[0] = 0x48;
         codeToPush[1] = 0xc7;
@@ -635,30 +636,6 @@ byte *generateFunction(byte *code, int *currentSize, int *maxSize)
                         0x89, 0x7d, 0xd0};                           // codigo de maquina
     code = doubleSize(code, maxSize, *currentSize + 11 >= *maxSize); // dobra o tamanho do codigo se necessario
     code = pushMachineCode(code, codeToPush, *currentSize, 11);      // adiciona o codigo de maquina
-    return code;
-}
-
-/*
-
-Gera o chamador da ultima funcao
-Codigo equivalente de assembly:
-
-pushq %rbp
-movq %rsp,%rbp
-call lastFunction
-leave
-ret
-
-*/
-
-byte *generateCaller(byte *code, int *currentSize, int *maxSize)
-{
-    byte *codeToPush = {0x55, 0x48, 0x89, 0xe5, 0xe8,
-                        0x00, 0x00, 0x00, 0x00, 0xc9, 0xc3}; // codigo de maquina para chamar a funcao
-    // note que o equivalente de call esta chamando somente 0, no final do wrapper
-    // ele ajeita para chamar a ultima funcao
-    // a funcao nao necessita de avaliar o tamanho pois e a primeira funcao a ser chamada
-    code = pushMachineCode(code, codeToPush, currentSize, 11); // adiciona o codigo de maquina
     return code;
 }
 
@@ -745,7 +722,7 @@ byte *varOrConstBytes(var v, int *size)
     else
     {
         *size = 4;
-        res = intToBytes(v.value, 0); // pega o valor constante (em 4 bytes)
+        res = intToBytes(v.value); // pega o valor constante (em 4 bytes)
     }
     return res;
 }
@@ -838,33 +815,14 @@ byte *littleThatEndian(byte *bytes, int fillFF)
 
 /*
 Dados um inteiro, retorna um array de 4 bytes, em little Endian
-se fill FF for 1 o resto do array é preenchido com 0xFF.
-Caso contrario com 0x00.
 */
-byte *intToBytes(int x, int fillFF)
+byte *intToBytes(int x)
 {
     byte *array = malloc(sizeof(byte) * 4);
     array[0] = (x >> 24) & 0xFF;
     array[1] = (x >> 16) & 0xFF;
     array[2] = (x >> 8) & 0xFF;
     array[3] = x & 0xFF;
-
-    if (fillFF)
-    {
-        array[0] = 0xFF;
-        array[1] = 0xFF;
-        array[2] = 0xFF;
-        array[3] = 0xFF;
-    }
-
-    else
-    {
-        array[0] = 0x00;
-        array[1] = 0x00;
-        array[2] = 0x00;
-        array[3] = 0x00;
-    }
-
     return array;
 }
 
@@ -930,30 +888,29 @@ byte *pushMachineCode(byte *array, byte *code, int *sizeArray, int sizeCode)
 byte *fixCallIndexes(byte *code, int *callers, int *functions, int sizeCallers, int sizeFunctions)
 {
 
-    return code;
-}
-
-/*
-
-byte *bufferToMachineCode(string buffer) //Funcao que transforma um buffer em codigo de maquina
-{
-    int maxSize = sizeof(buffer / sizeof(char)); // pega o tamanho do buffer
-    byte *machineCode = (byte *)malloc(maxSize * 5); //aloca um tamanho para o buffer
-    int *functions = malloc(sizeof(int)*5); //array com os tamanhos das funcoes
-    int numberOfLines = 0; // variavel que guarda o numero de linhas do buffer
-    string *s = brakeInto(buffer,&numberOfLines,'\n'); // pega as linhas do buffer
-    int trueSize = 0; // tamanho do codigo de maquina ate agora
-    int i;
-
-    for (i = 0; i < numberOfLines; i++) // loop que percorre as linhas do buffer
+    byte *fixCallIndexes(byte * code, int *callers, int *functions, int sizeCallers, int sizeFunctions)
     {
-        int codeSize;
-        byte *code = interpretLine(s[i], &codeSize, functions); // pega o codigo de maquina da linha
-        doubleSize(machineCode,&maxSize,trueSize + codeSize >= maxSize);
-        machineCode = pushMachineCode(machineCode, code, trueSize, codeSize); // coloca o codigo de maquina no buffer
-        // free(code);
+        int i;
+        int indexF;
+        int call;
+        int indexFunctionOnCode;
+        byte *aux = malloc(sizeof(byte) * 4);
+        for (i = 0; i < sizeCallers; i++)
+        {
+            call = callers[i];
+            aux[0] = code[call];
+            aux[1] = code[call + 1];
+            aux[2] = code[call + 2];
+            aux[3] = code[call + 3];
+            indexF = bytesToInt(aux);
+            indexFunctionOnCode = functions[indexF];
+            free(aux);
+            aux = intToBytes(indexFunctionOnCode - call);
+            code[call] = aux[0];
+            code[call + 1] = aux[1];
+            code[call + 2] = aux[2];
+            code[call + 3] = aux[3];
+            free(aux);
+        }
+        return code;
     }
-    free(s); //libera o array de linhas
-    return machineCode;
-}
-*/
