@@ -1,19 +1,14 @@
 #include <stdio.h>
 
-int function1(int x)
+
+int main(void)
 {
-    return x + 1;
-}
-
-int function2(int y){
-    return y + 2;
-}
-
-int function3(int z){
-    return z + 3;
-}
-
-int main(void){
     int i;
-    i = function1(2);
+    int a[5] = {1, 2, 3, 4,6};
+    for(i=0;i<4;i++)
+    {
+        a[i] += 2;
+    }
+    return 0;
 }
+//
