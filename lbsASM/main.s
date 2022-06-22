@@ -13,20 +13,13 @@ int boo(int d,int n){
     return v[n-1];
 }
 */
-pushq %rbp
-movq %rsp, %rbp
-sub $32, %rsp
-movq $0, -8(%rbp)
-movq $1, -16(%rbp)
-movq $2, -24(%rbp)
-leaq -8(%rbp),%rdx /*Pega ponteiro*/
-subq $8, %rdx /*passa para o proximo*/
-movq (%rdx),%rax /*pega o valor*/
+ pushq %rbp
+movq %rsp,%rbp
+ subq $48,%rsp
+movq %rdi,-48(%rbp)
+movq $10, %rax
 leave
 ret
-
-
-
 
 
 

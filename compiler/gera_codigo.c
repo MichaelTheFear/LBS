@@ -595,6 +595,7 @@ byte *generateReturn(byte *code, int *currentSize, int *maxSize, var v)
     }
     code = doubleSize(code, maxSize, *currentSize + size >= *maxSize);
     code = pushMachineCode(code, codeToPush, currentSize, size);
+    free(codeToPush);
     return code;
 }
 
@@ -626,6 +627,8 @@ byte *generateEnd(byte *code, int *currentSize, int *maxSize)
     subq $48,%rsp
     movq %rdi,-48(%rbp)
 
+    {0x55,0x48,0x89,0xe5,0x48,0x83,0xec,0x30,0x48,0x89,0x7d,0xd0}
+
     no caso estamos alocando memoria para as 5 variaveis e para o
     parametro de entrada 6 * 8 = 48
     e passamos o parametro para a primeira parte da stack
@@ -635,7 +638,7 @@ byte *generateEnd(byte *code, int *currentSize, int *maxSize)
 
 byte *generateFunction(byte *code, int *currentSize, int *maxSize)
 {
-    byte codeToPush[12];
+    byte * codeToPush = malloc(sizeof(byte) * 12);
     codeToPush[0]=0x55;
     codeToPush[1]=0x48;
     codeToPush[2]=0x89;
@@ -648,24 +651,25 @@ byte *generateFunction(byte *code, int *currentSize, int *maxSize)
     codeToPush[9]=0x89;
     codeToPush[10]=0x7d;
     codeToPush[11]=0xd0;
-
     code = doubleSize(code, maxSize, *currentSize + 12 >= *maxSize); // dobra o tamanho do codigo se necessario
     code = pushMachineCode(code, codeToPush, currentSize, 12);      // adiciona o codigo de maquina
+    free(codeToPush);
     return code;
 }
 
 /*
     Funcao que gera o codigo de maquina correpondente ao assembly:
     movq -varN(%rbp),%r12
+    {0x4c,0x8b,0x65,varN}
 */
 
 byte *varToR12(int varN)
 {
     byte lastByte = varInMC(varN);
     byte * res = malloc(sizeof(byte) * 4);
-    res[0] = 0x48;
+    res[0] = 0x4c;
     res[1] = 0x8b;
-    res[2] = 0x45;
+    res[2] = 0x65;
     res[3] = lastByte;
     return res;
 }
@@ -736,7 +740,7 @@ var *parseLineToVar(string line, int *size)
 byte *varOrConstBytes(var v, int *size)
 {
     byte * res;
-    if (v.isVar == '0')
+    if (v.isVar == 1)
     {
         *size = 1;
         res = malloc(sizeof(byte) * 1);
@@ -951,6 +955,77 @@ void printBytes(byte * bytes,int size){
     printf("\n");
 }
 
+
+
+byte * testGenFunc(){
+    int maxSize = 30;
+    int size = 0;
+    byte * code;
+    code = (byte *)malloc(sizeof(byte) * maxSize);
+    code = generateFunction(code, &size, &maxSize);
+    printBytes(code, size);
+    printf("Size: %d\n",size);
+    return code;
+}
+byte * testGenAssigmentOneToOne(){
+    
+}
+byte * testGenReturn(){
+    byte * code = testGenFunc();
+    var v1;
+    v1.isVar = 0;
+    v1.value = 10;
+    int maxSize = 30;
+    int size = 12;
+    code = generateReturn(code, &size, &maxSize,v1);
+    printBytes(code, size);
+    printf("Size: %d\n",size);
+    return code;
+}
+byte * testGenEnd(){
+    byte * code = testGenReturn();
+    int maxSize = 30;
+    int size = 19;
+    code = generateEnd(code, &size, &maxSize);
+    printBytes(code, size);
+    printf("Size: %d\n",size);
+    return code;
+}
+int testVarToR12(){
+    byte * mov = varToR12(2);
+    printBytes(mov,4);
+    free(mov);
+    mov = varToR12(-1);
+    printBytes(mov,4);
+    free(mov);
+    return 0;
+}
+int testVarOrConst(){
+    var v1;
+    byte * res;
+    int i;
+    v1.isVar = 1;
+    v1.value = 1;
+    res = varOrConstBytes(v1,&i);
+    printBytes(res,i);
+    v1.isVar = 0;
+    free(res);
+    v1.isVar = 0;
+    res = varOrConstBytes(v1,&i);
+    printBytes(res,i);
+    free(res);
+    return 0;
+}
+int testVarInMCode(){
+    byte res;
+    res = varInMC(0);
+    printf("%s\n",res==0xd8?"OK":"ERRO");
+    res = varInMC(1);
+    printf("%s\n",res==0xd8+8?"OK":"ERRO");
+    res = varInMC(-1);
+    printf("%s\n",res==0xd0?"OK":"ERRO");
+    return 0;
+}
 int testRemoveFirstChar(){
     string s = {.len = 5, .value = "teste"};
     string newstr = removeFirstChar(s);
@@ -962,7 +1037,6 @@ int testRemoveFirstChar(){
     free(newstr.value);
     return 0;
 }
-
 int testIntToBytes(){
     int x = 0x12345678;
     byte * array = intToBytes(x);
@@ -997,6 +1071,13 @@ int testPushMachineCode(){
 int main(){
     testPushMachineCode();
     testIntToBytes();
-    testRemoveFirstChar();
+   // testRemoveFirstChar();
+    testVarInMCode();
+    testVarOrConst();
+    testVarToR12();
+    byte * code = testGenEnd(); //faltadno um free ate aq
+    funcp f = (funcp)code;
+    printf("Res f: %d\n",f(1));
+    free(code);
     return 0;
 }
