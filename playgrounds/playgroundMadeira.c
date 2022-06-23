@@ -15,31 +15,31 @@ typedef unsigned char byte;
 byte *littleThatEndian(byte *bytes, int fillFF); // TODO M
 byte *intToBytes(int x, int fillFF);             // TODO M
 string removeFirstChar(string s);
-int split(string *txt, char delim, char ***tokens);
+int split(string *txt, char delim, string **tokens);
 
 int main(void)
 {
 
     string *str;
+    string *tokens;
+    int count, i;
     str = malloc(sizeof(string));
     str->value = malloc(sizeof(char) * 10);
-    str->value = "test func";
-    char **tokens;
-    int count, i;
+    str->value = "gabriel madeira";
 
     count = split(str, ' ', &tokens);
 
     for (i = 0; i < count; i++)
-        printf("%s", tokens[i]);
+        printf("%s", tokens[i].value);
 
     for (i = 0; i < count; i++)
-        free(tokens[i]);
+        free(tokens[i].value);
     free(tokens);
 
     return 0;
 }
 
-int split(string *txt, char delim, char ***tokens)
+int split(string *txt, char delim, string **tokens)
 {
     int *tklen, *t, count = 1;
     char **arr, *p = txt->value;
@@ -53,7 +53,7 @@ int split(string *txt, char delim, char ***tokens)
     for (p = (char *)txt->value; *p != '\0'; p++)
         *p == delim ? *t++ : (*t)++;
 
-    *tokens = arr = malloc(count * sizeof(char *));
+    *tokens = arr = malloc(count * sizeof(string));
     t = tklen;
     p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
 
@@ -66,7 +66,54 @@ int split(string *txt, char delim, char ***tokens)
         }
 
         else
+        {
             *p++ = *txt->value++;
+        }
+    }
+
+    free(tklen);
+
+    return count;
+}
+
+int split2(string *txt, char delim, string **tokens)
+{
+    int *tklen, *t, count = 1;
+    string *p;    // pointer to the current token
+    string **arr; // array de strings
+
+    p = malloc(sizeof(string));
+    p->value = txt->value;
+
+    while (*p->value != '\0')     // ta certo
+        if (*p->value++ == delim) // ta certo
+            count += 1;           // ta certo
+
+    t = tklen = calloc(count, sizeof(int)); // ta certo
+
+    for (p->value = (char *)txt->value; *p->value != '\0'; p->value++) // ta certo
+    {
+        *p->value == delim ? *t++ : (*t)++; // ta certo
+    }
+    p->value = txt->value;
+
+    *tokens = *arr = malloc(count * sizeof(char *)); // ta certo?
+    t = tklen;                                       // ta certo
+    p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
+
+    while (*txt->value != '\0')
+    {
+        // printf("txt value: %c\n", *txt->value);
+        if (*txt->value == delim)
+        {
+            printf("if\n");
+            // p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
+            *txt->value++; // aqui ta pulando o f de func
+        }
+
+        // else
+        // *p->value++ = *txt->value++;
+        *txt->value++;
     }
 
     free(tklen);
