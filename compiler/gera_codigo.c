@@ -959,9 +959,39 @@ void printBytes(byte *bytes, int size)
     printf("\n");
 }
 
+byte * testGenZret(){
+  int maxSize = 30
+  int size = 0;
+  var v1;
+  byte * code;
+  code = (byte *)malloc(sizeof(byte) * (*maxSize));
+  printBytes(code, *size);
+  printf("Size: %d\n",*size);
+  //testGenSumAssigment(code,maxSize, size);
+  
+  
+  v1.isVar = 1;
+  v1.value = 1;
+  code = generateReturn(code, size, maxSize,v1);
+  printf("Size 2: %d\n",* size);
+  printBytes(code,* size);
+  code = generateEnd(code, &size, &maxSize);
+  printBytes(code, size);
+  printf("Size 3: %d\n",size);
+  
 
+  
+  
+}
 
-byte * testGenFunc(int * maxSize,int * size){
+/* Area de teste de um programa simples de soma
+function
+v0 = $4
+v1 = $2 + v0
+ret v1
+end
+*/
+byte * testGenSumFunc(int * maxSize,int * size){
     byte * code;
     code = (byte *)malloc(sizeof(byte) * (*maxSize));
     code = generateFunction(code, size, maxSize);
@@ -969,12 +999,13 @@ byte * testGenFunc(int * maxSize,int * size){
     printf("Size: %d\n",*size);
     return code;
 }
-byte * testAssigmentOneToOne(byte * code,int * maxSize, int * size){
+byte * testGenSumAssigment(byte * code,int * maxSize, int * size){
 
-    code = testGenFunc(maxSize,size);
-    var v1,v2;
+    code = testGenSumFunc(maxSize,size);
+    int funcNum;
+    var v1,v2,op,v;
     v2.isVar = 0;
-    v2.value = 0xFFF;
+    v2.value = 4;
     v1.isVar = 1;
     v1.value = 0;
     code = generateAssigmentOneToOne(code, size, maxSize,v1,v2);
@@ -982,14 +1013,19 @@ byte * testAssigmentOneToOne(byte * code,int * maxSize, int * size){
     printf("Size a: %d\n",*size);
     v2.isVar = 1;
     v2.value = 0;
-    v1.isVar = 1;
-    v1.value = 1;
-    code = generateAssigmentOneToOne(code, size, maxSize,v1,v2);
+    v1.value = 2;
+    v1.isVar = 0;
+    v.isVar = 1;
+    v.value = 1;
+    op.value=1;
+    op.isVar=-2;
+    code = generateOperation(code,size,maxSize,v1,op,v2,&funcNum);
+    code = generateAssigment(code, size, maxSize,v.value);
     printf("Size a: %d\n",*size);
     return code;
 }
-byte * testGenReturn(int * maxSize, int * size){
-    byte * code = testAssigmentOneToOne(code,maxSize, size);
+byte * testGenSumReturn(int * maxSize, int * size){
+    byte * code = testGenSumAssigment(code,maxSize, size);
     var v1;
     v1.isVar = 1;
     v1.value = 1;
@@ -998,15 +1034,16 @@ byte * testGenReturn(int * maxSize, int * size){
     printBytes(code,* size);
     return code;
 }
-byte * testGenEnd(){
+byte * testGenSumEnd(){
     int maxSize = 30;
     int size = 0;
-    byte * code = testGenReturn(&maxSize,&size);
+    byte * code = testGenSumReturn(&maxSize,&size);
     code = generateEnd(code, &size, &maxSize);
     printBytes(code, size);
     printf("Size 3: %d\n",size);
     return code;
 }
+
 int testVarToR12()
 {
     byte *mov = varToR12(2);
@@ -1099,7 +1136,7 @@ int main()
     testVarInMCode();
     testVarOrConst();
     testVarToR12();
-    byte * code = testGenEnd(); //faltadno um free ate aq
+    byte * code = testGenSumEnd(); //faltadno 2 free ate aq
     printf("\n %02x\n",code[27]);
     
     funcp f = (funcp)code;

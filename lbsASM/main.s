@@ -20,7 +20,8 @@ int boo(int d,int n){
     movq %rdi,-48(%rbp)
     movq $0xFFF, -40(%rbp)
     movq -40(%rbp),%r12
-    movq %r12,-32(%rbp)
+    addq -40(%rbp),%r12
+
     movq -32(%rbp),%rax
     leave
     ret    
