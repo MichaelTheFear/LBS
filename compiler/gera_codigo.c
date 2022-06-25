@@ -974,7 +974,7 @@ byte * testAssigmentOneToOne(byte * code,int * maxSize, int * size){
     code = testGenFunc(maxSize,size);
     var v1,v2;
     v2.isVar = 0;
-    v2.value = 0xFFF;
+    v2.value = 3;
     v1.isVar = 1;
     v1.value = 0;
     code = generateAssigmentOneToOne(code, size, maxSize,v1,v2);
@@ -984,7 +984,7 @@ byte * testAssigmentOneToOne(byte * code,int * maxSize, int * size){
     v2.value = 0;
     v1.isVar = 1;
     v1.value = 1;
-    code = generateAssigmentOneToOne(code, size, maxSize,v1,v2);
+    code = generateAssigment(code, size, maxSize,v1);
     printf("Size a: %d\n",*size);
     return code;
 }
