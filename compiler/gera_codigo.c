@@ -514,7 +514,7 @@ movq %r12,-X2(%rbp)
 */
 byte *generateAssigmentOneToOne(byte *code, int *currentSize, int *maxSize, var v1, var v2)
 {
-
+    
     byte codeToPush[8];
     byte * aux;
     if (v2.isVar == 0) // se for constante
@@ -667,11 +667,12 @@ byte *generateFunction(byte *code, int *currentSize, int *maxSize)
 byte *varToR12(int varN)
 {
     byte lastByte = varInMC(varN);
-    byte *res = malloc(sizeof(byte) * 4);
+    byte *res = malloc(sizeof(byte) * 5);
     res[0] = 0x4c;
     res[1] = 0x8b;
-    res[2] = 0x65;
-    res[3] = lastByte;
+    res[2] = 0x64;
+    res[3] = 0x24;
+    res[4] = lastByte;
     return res;
 }
 
@@ -959,9 +960,40 @@ void printBytes(byte *bytes, int size)
     printf("\n");
 }
 
+byte * testGenZret(){
+  int maxSize = 30;
+  int size = 0;
+  var v1,v2;
+  byte * code;
+  v2.isVar = 0;
+  v2.value = 0xFFF;
+  v1.isVar = 1;
+  v1.value = -1;
+  code = (byte *)malloc(sizeof(byte) * (maxSize));
+  code = generateFunction(code, &size, &maxSize);
+  printBytes(code, size);
+  printf("Size: %d\n",size);
+  code = generateZret(code, &size, &maxSize,v1,v2);
+  printBytes(code, size);
+  printf("Size 1: %d\n",size);
+  code = generateReturn(code, &size, &maxSize,v1);
+  printBytes(code, size);
+  printf("Size 2: %d\n", size);
+  code = generateEnd(code, &size, &maxSize);
+  printBytes(code, size);
+  printf("Size 3: %d\n",size);
+  
+  return code;
+}
 
-
-byte * testGenFunc(int * maxSize,int * size){
+/* Area de teste de um programa simples de soma
+function
+v0 = $4
+v1 = $2 + v0
+ret v1
+end
+*/
+byte * testGenSumFunc(int * maxSize,int * size){
     byte * code;
     code = (byte *)malloc(sizeof(byte) * (*maxSize));
     code = generateFunction(code, size, maxSize);
@@ -969,27 +1001,44 @@ byte * testGenFunc(int * maxSize,int * size){
     printf("Size: %d\n",*size);
     return code;
 }
-byte * testAssigmentOneToOne(byte * code,int * maxSize, int * size){
+byte * testGenSumAssigment(byte * code,int * maxSize, int * size){
 
-    code = testGenFunc(maxSize,size);
-    var v1,v2;
+    code = testGenSumFunc(maxSize,size);
+    int funcNum;
+    var v1,v2,op,v;
     v2.isVar = 0;
+<<<<<<< HEAD
     v2.value = 3;
+=======
+    v2.value = 4;
+>>>>>>> 49c5bda3c01869fb27867fc7e84bb4c1283f2fb0
     v1.isVar = 1;
     v1.value = 0;
     code = generateAssigmentOneToOne(code, size, maxSize,v1,v2);
     printBytes(code, *size);
     printf("Size a: %d\n",*size);
     v2.isVar = 1;
+<<<<<<< HEAD
     v2.value = 0;
     v1.isVar = 1;
     v1.value = 1;
     code = generateAssigment(code, size, maxSize,v1);
+=======
+    v2.value = 0;
+    v1.value = 2;
+    v1.isVar = 0;
+    v.isVar = 1;
+    v.value = 1;
+    op.value=1;
+    op.isVar=-2;
+    code = generateOperation(code,size,maxSize,v1,op,v2,&funcNum);
+    code = generateAssigment(code, size, maxSize,v.value);
+>>>>>>> 49c5bda3c01869fb27867fc7e84bb4c1283f2fb0
     printf("Size a: %d\n",*size);
     return code;
 }
-byte * testGenReturn(int * maxSize, int * size){
-    byte * code = testAssigmentOneToOne(code,maxSize, size);
+byte * testGenSumReturn(int * maxSize, int * size){
+    byte * code = testGenSumAssigment(code,maxSize, size);
     var v1;
     v1.isVar = 1;
     v1.value = 1;
@@ -998,15 +1047,16 @@ byte * testGenReturn(int * maxSize, int * size){
     printBytes(code,* size);
     return code;
 }
-byte * testGenEnd(){
+byte * testGenSumEnd(){
     int maxSize = 30;
     int size = 0;
-    byte * code = testGenReturn(&maxSize,&size);
+    byte * code = testGenSumReturn(&maxSize,&size);
     code = generateEnd(code, &size, &maxSize);
     printBytes(code, size);
     printf("Size 3: %d\n",size);
     return code;
 }
+
 int testVarToR12()
 {
     byte *mov = varToR12(2);
@@ -1099,11 +1149,9 @@ int main()
     testVarInMCode();
     testVarOrConst();
     testVarToR12();
-    byte * code = testGenEnd(); //faltadno um free ate aq
-    printf("\n %02x\n",code[27]);
-    
+    byte * code = testGenZret(); //faltadno 2 free ate aq
     funcp f = (funcp)code;
-    printf("Res f: %d\n",f(2));
+    printf("Res f: %d\n",f(3));
     free(code);
     return 0;
 }
