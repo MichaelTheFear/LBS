@@ -514,7 +514,7 @@ movq %r12,-X2(%rbp)
 */
 byte *generateAssigmentOneToOne(byte *code, int *currentSize, int *maxSize, var v1, var v2)
 {
-
+    
     byte codeToPush[8];
     byte * aux;
     if (v2.isVar == 0) // se for constante
@@ -667,11 +667,12 @@ byte *generateFunction(byte *code, int *currentSize, int *maxSize)
 byte *varToR12(int varN)
 {
     byte lastByte = varInMC(varN);
-    byte *res = malloc(sizeof(byte) * 4);
+    byte *res = malloc(sizeof(byte) * 5);
     res[0] = 0x4c;
     res[1] = 0x8b;
-    res[2] = 0x65;
-    res[3] = lastByte;
+    res[2] = 0x64;
+    res[3] = 0x24;
+    res[4] = lastByte;
     return res;
 }
 
@@ -960,28 +961,29 @@ void printBytes(byte *bytes, int size)
 }
 
 byte * testGenZret(){
-  int maxSize = 30
+  int maxSize = 30;
   int size = 0;
-  var v1;
+  var v1,v2;
   byte * code;
-  code = (byte *)malloc(sizeof(byte) * (*maxSize));
-  printBytes(code, *size);
-  printf("Size: %d\n",*size);
-  //testGenSumAssigment(code,maxSize, size);
-  
-  
+  v2.isVar = 0;
+  v2.value = 0xFFF;
   v1.isVar = 1;
-  v1.value = 1;
-  code = generateReturn(code, size, maxSize,v1);
-  printf("Size 2: %d\n",* size);
-  printBytes(code,* size);
+  v1.value = -1;
+  code = (byte *)malloc(sizeof(byte) * (maxSize));
+  code = generateFunction(code, &size, &maxSize);
+  printBytes(code, size);
+  printf("Size: %d\n",size);
+  code = generateZret(code, &size, &maxSize,v1,v2);
+  printBytes(code, size);
+  printf("Size 1: %d\n",size);
+  code = generateReturn(code, &size, &maxSize,v1);
+  printBytes(code, size);
+  printf("Size 2: %d\n", size);
   code = generateEnd(code, &size, &maxSize);
   printBytes(code, size);
   printf("Size 3: %d\n",size);
   
-
-  
-  
+  return code;
 }
 
 /* Area de teste de um programa simples de soma
@@ -1136,11 +1138,9 @@ int main()
     testVarInMCode();
     testVarOrConst();
     testVarToR12();
-    byte * code = testGenSumEnd(); //faltadno 2 free ate aq
-    printf("\n %02x\n",code[27]);
-    
+    byte * code = testGenZret(); //faltadno 2 free ate aq
     funcp f = (funcp)code;
-    printf("Res f: %d\n",f(2));
+    printf("Res f: %d\n",f(3));
     free(code);
     return 0;
 }
