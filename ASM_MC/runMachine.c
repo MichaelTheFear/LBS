@@ -5,11 +5,9 @@ typedef int (*funcp)(int x);
 
 int main(void)
 {
-  unsigned char machineCode[] = 
-???
-;
+  unsigned char machineCode[] =
+      ? ? ? ;
   funcp f = (funcp)machineCode;
   int i = f(1);
   printf("%d\n", i);
 }
-

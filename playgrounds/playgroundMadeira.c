@@ -3,11 +3,13 @@
 #include <string.h>
 
 typedef int (*funcp)(int x);
+
 typedef struct __string
 {
     int len;     // tamanho da string
     char *value; // a string em si
 } string;
+
 typedef unsigned char byte;
 
 // funcoes auxiliares
@@ -15,34 +17,72 @@ typedef unsigned char byte;
 byte *littleThatEndian(byte *bytes, int fillFF); // TODO M
 byte *intToBytes(int x, int fillFF);             // TODO M
 string removeFirstChar(string s);
-int split(string *txt, char delim, string **tokens);
+// int split(string txt, const char *delim, string **tokens);
+int split(string txt, char delim, char ***tokens);
 
 int main(void)
 {
+    // string oldStr;
+    // string *tokens;
+    // int count;
+    // char delim[] = " ";
 
-    string *str;
-    string *tokens;
+    // testes da funcao split com parametros string txt, const char *delim, string **tokens
+    /*
+
+    // tokens = (string *)malloc(sizeof(string) * 10);
+    // tokens[0].value = (char *)malloc(sizeof(char) * 10);
+    oldStr.value = "gabriel madeira";
+    oldStr.len = strlen(oldStr.value);
+
+    count = split(oldStr, delim, &tokens);
+
+    // printf("%d\n", count);
+    // printf("%s\n", tokens[0].value);
+
+    // for (int i = 0; i < count; i++)
+    // {
+    //     printf("len: %s\n", tokens[i].value);
+    //     printf("value: %d\n", tokens[i].len);
+    // }
+
+    */
+
+    // testes da funcao split com os parametros string txt, char *delim, char ***tokens
+
+    string txt;
+    char delim = ' ';
+    char **tokens;
     int count, i;
-    str = malloc(sizeof(string));
-    str->value = malloc(sizeof(char) * 10);
-    str->value = "gabriel madeira";
 
-    count = split(str, ' ', &tokens);
+    // txt = malloc(sizeof(string));
+    txt.value = (char *)malloc(sizeof(char) * 20);
+    strcpy(txt.value, "gabriel madeira");
+
+    count = split(txt, delim, &tokens);
+
+    printf("%d\n", count);
 
     for (i = 0; i < count; i++)
-        printf("%s", tokens[i].value);
+    {
+        printf("len: %s\n", tokens[i]);
+        printf("value: %ld\n", strlen(tokens[i]));
+    }
 
+    // freeing tokens
     for (i = 0; i < count; i++)
-        free(tokens[i].value);
+    {
+        free(tokens[i]);
+    }
     free(tokens);
 
     return 0;
 }
 
-int split(string *txt, char delim, string **tokens)
+int split(string txt, char delim, char ***tokens)
 {
     int *tklen, *t, count = 1;
-    char **arr, *p = txt->value;
+    char **arr, *p = txt.value;
 
     while (*p != '\0')
         if (*p++ == delim)
@@ -50,25 +90,23 @@ int split(string *txt, char delim, string **tokens)
 
     t = tklen = calloc(count, sizeof(int));
 
-    for (p = (char *)txt->value; *p != '\0'; p++)
+    for (p = (char *)txt.value; *p != '\0'; p++)
         *p == delim ? *t++ : (*t)++;
 
-    *tokens = arr = malloc(count * sizeof(string));
+    *tokens = arr = malloc(count * sizeof(char *));
     t = tklen;
     p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
 
-    while (*txt->value != '\0')
+    while (*txt.value != '\0')
     {
-        if (*txt->value == delim)
+        if (*txt.value == delim)
         {
             p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
-            *txt->value++;
+            *txt.value++;
         }
 
         else
-        {
-            *p++ = *txt->value++;
-        }
+            *p++ = *txt.value++;
     }
 
     free(tklen);
@@ -76,82 +114,74 @@ int split(string *txt, char delim, string **tokens)
     return count;
 }
 
-int split2(string *txt, char delim, string **tokens)
-{
-    int *tklen, *t, count = 1;
-    string *p;    // pointer to the current token
-    string **arr; // array de strings
+// int split(string txt, const char *delim, string **tokens)
+// {
+//     char tmpStr[50];
+//     char *tmpToken;
+//     string **tmpTk;
+//     int i = 0, j = 0;
 
-    p = malloc(sizeof(string));
-    p->value = txt->value;
+//     tokens = (string **)malloc(sizeof(string *) * 10);
+//     tmpTk = (string **)malloc(sizeof(string *) * 10);
 
-    while (*p->value != '\0')     // ta certo
-        if (*p->value++ == delim) // ta certo
-            count += 1;           // ta certo
+//     strcpy(tmpStr, txt.value);
+//     tmpToken = strtok(tmpStr, delim);
 
-    t = tklen = calloc(count, sizeof(int)); // ta certo
+//     while (tmpToken != NULL)
+//     {
+//         tmpTk[i] = (string *)malloc(sizeof(string));
+//         tokens[i] = (string *)malloc(sizeof(string));
+//         tmpTk[i]->value = tmpToken;
+//         // strcpy(tokens[i]->value, tmpToken);
+//         // strcpy(tmpTk[i]->value, tmpToken);
+//         // tokens[i]->value = tmpToken;
+//         tmpToken = strtok(NULL, delim);
+//         i++;
+//     }
 
-    for (p->value = (char *)txt->value; *p->value != '\0'; p->value++) // ta certo
-    {
-        *p->value == delim ? *t++ : (*t)++; // ta certo
-    }
-    p->value = txt->value;
+//     char test[20] = "hello";
 
-    *tokens = *arr = malloc(count * sizeof(char *)); // ta certo?
-    t = tklen;                                       // ta certo
-    p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
+//     for (int j = 0; j < i; j++)
+//     {
+//         tokens[j]->len = strlen(tmpTk[j]->value);
+//         strcpy(tokens[j]->value, test);
+//     }
 
-    while (*txt->value != '\0')
-    {
-        // printf("txt value: %c\n", *txt->value);
-        if (*txt->value == delim)
-        {
-            printf("if\n");
-            // p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
-            *txt->value++; // aqui ta pulando o f de func
-        }
+//     return i;
+// }
 
-        // else
-        // *p->value++ = *txt->value++;
-        *txt->value++;
-    }
+// string removeFirstChar(string s)
+// {
+//     string newstr;
+//     newstr.len = s.len - 1;
+//     newstr.value = (char *)malloc(sizeof(char) * newstr.len);
 
-    free(tklen);
-    return count;
-}
+//     for (int i = 0; i < s.len; i++)
+//     {
+//         newstr.value[i] = s.value[i + 1];
+//     }
 
-string removeFirstChar(string s)
-{
-    string newstr;
-    newstr.len = s.len - 1;
-    newstr.value = (char *)malloc(sizeof(char) * newstr.len);
+//     newstr.value[newstr.len] = '\0';
 
-    for (int i = 0; i < s.len; i++)
-    {
-        newstr.value[i] = s.value[i + 1];
-    }
+//     return newstr;
+// }
 
-    newstr.value[newstr.len] = '\0';
+// byte *intToBytes(int x, int fillFF)
+// {
+//     byte *array = malloc(sizeof(byte) * 4);
+//     array[0] = (x >> 24) & 0xFF;
+//     array[1] = (x >> 16) & 0xFF;
+//     array[2] = (x >> 8) & 0xFF;
+//     array[3] = x & 0xFF;
 
-    return newstr;
-}
+//     if (fillFF)
+//     {
+//         for (int i = 0; i < 4; i++)
+//         {
+//             if (array[i] == 0x00)
+//                 array[i] = 0xFF;
+//         }
+//     }
 
-byte *intToBytes(int x, int fillFF)
-{
-    byte *array = malloc(sizeof(byte) * 4);
-    array[0] = (x >> 24) & 0xFF;
-    array[1] = (x >> 16) & 0xFF;
-    array[2] = (x >> 8) & 0xFF;
-    array[3] = x & 0xFF;
-
-    if (fillFF)
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            if (array[i] == 0x00)
-                array[i] = 0xFF;
-        }
-    }
-
-    return array;
-}
+//     return array;
+// }

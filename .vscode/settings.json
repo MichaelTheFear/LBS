@@ -1,4 +1,7 @@
 {
   "colorWheel.settings.workspaceColor": "hsl(14,61%,74%)",
-  "C_Cpp.errorSquiggles": "Disabled"
+  "C_Cpp.errorSquiggles": "Disabled",
+  "files.associations": {
+    "type_traits": "c"
+  }
 }
