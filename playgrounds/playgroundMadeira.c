@@ -16,7 +16,7 @@ typedef unsigned char byte;
 // string *breakInto(string buffer, int *size, char c); // TODO M
 byte *littleThatEndian(byte *bytes, int fillFF); // TODO M
 byte *intToBytes(int x, int fillFF);             // TODO M
-string removeFirstChar(string s);
+char *removeFirstChar(char **s);
 // int split(string txt, const char *delim, string **tokens);
 int split(string txt, char delim, char ***tokens);
 
@@ -49,6 +49,7 @@ int main(void)
     */
 
     // testes da funcao split com os parametros string txt, char *delim, char ***tokens
+    /*
 
     string txt;
     char delim = ' ';
@@ -76,43 +77,58 @@ int main(void)
     }
     free(tokens);
 
+    */
+
+    // testing removefirstchar function
+
+    char *testStr;
+    char **funcParameter;
+
+    testStr = (char *)malloc(sizeof(char) * 20);
+    funcParameter = (char **)malloc(sizeof(char *) * 10);
+    testStr = "gabriel";
+
+    char *tmpStr = removeFirstChar(&testStr);
+
+    printf("%s\n", tmpStr);
+
     return 0;
 }
 
-int split(string txt, char delim, char ***tokens)
-{
-    int *tklen, *t, count = 1;
-    char **arr, *p = txt.value;
+// int split(string txt, char delim, char ***tokens)
+// {
+//     int *tklen, *t, count = 1;
+//     char **arr, *p = txt.value;
 
-    while (*p != '\0')
-        if (*p++ == delim)
-            count += 1;
+//     while (*p != '\0')
+//         if (*p++ == delim)
+//             count += 1;
 
-    t = tklen = calloc(count, sizeof(int));
+//     t = tklen = calloc(count, sizeof(int));
 
-    for (p = (char *)txt.value; *p != '\0'; p++)
-        *p == delim ? *t++ : (*t)++;
+//     for (p = (char *)txt.value; *p != '\0'; p++)
+//         *p == delim ? *t++ : (*t)++;
 
-    *tokens = arr = malloc(count * sizeof(char *));
-    t = tklen;
-    p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
+//     *tokens = arr = malloc(count * sizeof(char *));
+//     t = tklen;
+//     p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
 
-    while (*txt.value != '\0')
-    {
-        if (*txt.value == delim)
-        {
-            p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
-            *txt.value++;
-        }
+//     while (*txt.value != '\0')
+//     {
+//         if (*txt.value == delim)
+//         {
+//             p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
+//             *txt.value++;
+//         }
 
-        else
-            *p++ = *txt.value++;
-    }
+//         else
+//             *p++ = *txt.value++;
+//     }
 
-    free(tklen);
+//     free(tklen);
 
-    return count;
-}
+//     return count;
+// }
 
 // int split(string txt, const char *delim, string **tokens)
 // {
@@ -150,21 +166,29 @@ int split(string txt, char delim, char ***tokens)
 //     return i;
 // }
 
-// string removeFirstChar(string s)
+// retorna char *
+// recebe char **
+
+// char *removeFirstChar(char **s)
 // {
-//     string newstr;
-//     newstr.len = s.len - 1;
-//     newstr.value = (char *)malloc(sizeof(char) * newstr.len);
-
-//     for (int i = 0; i < s.len; i++)
-//     {
-//         newstr.value[i] = s.value[i + 1];
-//     }
-
-//     newstr.value[newstr.len] = '\0';
-
-//     return newstr;
+//     char *tmp = *s;
+//     *s = tmp + 1;
+//     return tmp;
 // }
+
+char *removeFirstChar(char **s)
+{
+    char *newstr = malloc(strlen(*s) - 1);
+    strcpy(newstr, *s);
+    int len_newstr = strlen(newstr);
+
+    for (int i = 0; i < len_newstr; i++)
+        newstr[i] = newstr[i + 1];
+
+    newstr[len_newstr] = '\0';
+
+    return newstr;
+}
 
 // byte *intToBytes(int x, int fillFF)
 // {
