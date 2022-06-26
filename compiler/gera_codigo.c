@@ -110,7 +110,7 @@ unsigned char *convertionWrapper(string buffer, funcp *entry, int *starterIndex)
     var *tempVars; // variaveis temporarias
     for (i = 0; i < nLines; i++)
     {
-        firstCharacter = lines[i].value[0];
+        firstCharacter = lines[i][0];
         switch (firstCharacter)
         {
         case 'f':
@@ -728,9 +728,12 @@ byte *varToR12(int varN)
 */
 
 
-var *parseLineToVar(string line, int *size)
+var *parseLineToVar(char * s, int *size)
 {
     char ** pieces;
+    string line;
+    line.value = s;
+    line.size = strlen(s);
     *size = split(line, ' ',&pieces); // quebra em espacos
     var *vars = malloc(sizeof(var) * (*size));   // aloca memoria para as variaveis
     char firstLetter;                            // primeira letra da linha
