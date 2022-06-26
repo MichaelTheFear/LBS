@@ -78,16 +78,16 @@ void *doubleSize(void *ptr, int *size, int condition);
 byte varInMC(int varNum);
 byte *varOrConstBytes(var v, int *size);
 byte *varToR12(int varNum);
-char* removeFirstChar(char * s);
+char *removeFirstChar(char *s);
 
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry)
 {
     string buffer = generateBuffer(f);
     int starterIndex; // indice de comeco da ultima funcao do array de codigo
-    unsigned char * lbsFunction;
+    unsigned char *lbsFunction;
     code = (unsigned char *)convertionWrapper(buffer, entry, &starterIndex);
     lbsFunction = &code[starterIndex];
-    entry = (funcp) lbsFunction;
+    entry = (funcp)lbsFunction;
     freeBuffer(buffer);
 }
 
@@ -727,17 +727,16 @@ byte *varToR12(int varN)
     constante ou operacao
 */
 
-
-var *parseLineToVar(char * s, int *size)
+var *parseLineToVar(char *s, int *size)
 {
-    char ** pieces;
+    char **pieces;
     string line;
     line.value = s;
     line.size = strlen(s);
-    *size = split(line, ' ',&pieces); // quebra em espacos
-    var *vars = malloc(sizeof(var) * (*size));   // aloca memoria para as variaveis
-    char firstLetter;                            // primeira letra da linha
-    int j = 0;                                   // indice de var[]
+    *size = split(line, ' ', &pieces);         // quebra em espacos
+    var *vars = malloc(sizeof(var) * (*size)); // aloca memoria para as variaveis
+    char firstLetter;                          // primeira letra da linha
+    int j = 0;                                 // indice de var[]
     for (int i = 0; i < *size; i++)
     { // para cada variavel
         firstLetter = pieces[i][0];
@@ -745,10 +744,10 @@ var *parseLineToVar(char * s, int *size)
         {
         case 'v':
             vars[j].value = pieces[i][0] - '0'; // pega o valor da variavel
-            vars[j].isVar = 1;                        // variavel
+            vars[j].isVar = 1;                  // variavel
             break;
         case '$':
-            char* aux = removeFirstChar(pieces[i]);
+            char *aux = removeFirstChar(pieces[i]);
             vars[j].isVar = 0;         // constante
             vars[j].value = atoi(aux); // pega o valor da constante
             break;
@@ -772,7 +771,7 @@ var *parseLineToVar(char * s, int *size)
             if (firstLetter - '0' >= 0 && firstLetter - '0' <= 9)
             {
                 vars[j].value = pieces[i][1] - '0'; // pega o valor de indice de funcao
-                vars[j].isVar = 2;                        // indice de funcao
+                vars[j].isVar = 2;                  // indice de funcao
             }
             else
             { // caso seja = , ret, zret ou qualquer outra coisa ignora o pedaco
@@ -943,6 +942,19 @@ byte *fixCallIndexes(byte *code, int *callers, int *functions, int sizeCallers, 
     return code;
 }
 
+char *removeFirstChar(char *s)
+{
+    char *newstr = malloc(strlen(s) - 1);
+    strcpy(newstr, s);
+    int len_newstr = strlen(newstr);
+
+    for (int i = 0; i < len_newstr; i++)
+        newstr[i] = newstr[i + 1];
+
+    newstr[len_newstr] = '\0';
+
+    return newstr;
+}
 
 /*
     Dobra o tamanho de um array (string ou byte)
