@@ -943,21 +943,6 @@ byte *fixCallIndexes(byte *code, int *callers, int *functions, int sizeCallers, 
     return code;
 }
 
-string removeFirstChar(string s)
-{
-    string newstr;
-    newstr.len = s.len - 1;
-    newstr.value = (char *)malloc(sizeof(char) * newstr.len);
-
-    for (int i = 0; i < s.len; i++)
-    {
-        newstr.value[i] = s.value[i + 1];
-    }
-
-    newstr.value[newstr.len] = '\0';
-
-    return newstr;
-}
 
 /*
     Dobra o tamanho de um array (string ou byte)
@@ -1238,4 +1223,12 @@ int main()
 
 */
 
-
+int main(){
+    FILE * lbs=fopen("main.lbs","r");
+    funcp f;
+    unsigned char * code = gera_codigo(lbs,code,&f);
+    fclose(lbs);
+    printf("%d\n",f(0));
+    free(code);
+    return 0;
+}
