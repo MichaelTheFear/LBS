@@ -15,34 +15,34 @@ typedef unsigned char byte;
 byte *littleThatEndian(byte *bytes, int fillFF); // TODO M
 byte *intToBytes(int x, int fillFF);             // TODO M
 string removeFirstChar(string s);
-int split(string *txt, char delim, string **tokens);
+int split(string txt, char delim, char***tokens);
 
 int main(void)
 {
 
     string *str;
-    string *tokens;
+    char **tokens;
     int count, i;
     str = malloc(sizeof(string));
     str->value = malloc(sizeof(char) * 10);
-    str->value = "gabriel madeira";
+    str->value = " v0 = v2 + $1 \nv1 = v3 + $3\n   v2 = v0 + v1   \n  ret\n";
 
-    count = split(str, ' ', &tokens);
-
-    for (i = 0; i < count; i++)
-        printf("%s", tokens[i].value);
+    count = split(*str, '\n', &tokens);
 
     for (i = 0; i < count; i++)
-        free(tokens[i].value);
+        printf("%s", tokens[i]);
+
+    for (i = 0; i < count; i++)
+        free(tokens[i]);
     free(tokens);
 
     return 0;
 }
 
-int split(string *txt, char delim, string **tokens)
+int split(string txt, char delim, char ***tokens)
 {
     int *tklen, *t, count = 1;
-    char **arr, *p = txt->value;
+    char **arr, *p = txt.value;
 
     while (*p != '\0')
         if (*p++ == delim)
@@ -50,25 +50,23 @@ int split(string *txt, char delim, string **tokens)
 
     t = tklen = calloc(count, sizeof(int));
 
-    for (p = (char *)txt->value; *p != '\0'; p++)
+    for (p = (char *)txt.value; *p != '\0'; p++)
         *p == delim ? *t++ : (*t)++;
 
-    *tokens = arr = malloc(count * sizeof(string));
+    *tokens = arr = malloc(count * sizeof(char *));
     t = tklen;
     p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
 
-    while (*txt->value != '\0')
+    while (*txt.value != '\0')
     {
-        if (*txt->value == delim)
+        if (*txt.value == delim)
         {
             p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
-            *txt->value++;
+            *txt.value++;
         }
 
         else
-        {
-            *p++ = *txt->value++;
-        }
+            *p++ = *txt.value++;
     }
 
     free(tklen);

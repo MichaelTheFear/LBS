@@ -69,11 +69,8 @@ byte *generateReturn(byte *code, int *currentSize, int *maxSize, var v);
 byte *generateAssigment(byte *code, int *currentSize, int *maxSize,
                         int varNum);
 byte *generateCaller(byte *code, int *currentSize, int *maxSize);
-
-// funcoes auxiliares
 byte *pushMachineCode(byte *array, byte *code, int *sizeArray, int sizeCode);
 int split(string txt, char delim, char ***tokens);
-// string *breakInto(string buffer, int *size, char c);
 byte *stackPosition(int varNum);
 byte *littleThatEndian(byte *bytes, int fillFF);
 byte *intToBytes(int x);
@@ -81,14 +78,16 @@ void *doubleSize(void *ptr, int *size, int condition);
 byte varInMC(int varNum);
 byte *varOrConstBytes(var v, int *size);
 byte *varToR12(int varNum);
-string removeFirstChar(string s);
+char* removeFirstChar(char * s);
 
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry)
 {
     string buffer = generateBuffer(f);
     int starterIndex; // indice de comeco da ultima funcao do array de codigo
-    // code = (unsigned char *)convertionWrapper(buffer, entry, &starterIndex);
-    // entry = (*funcp)(int x) &code[starterIndex];
+    unsigned char * lbsFunction;
+    code = (unsigned char *)convertionWrapper(buffer, entry, &starterIndex);
+    lbsFunction = &code[starterIndex];
+    entry = (funcp) lbsFunction;
     freeBuffer(buffer);
 }
 
@@ -107,7 +106,6 @@ unsigned char *convertionWrapper(string buffer, funcp *entry, int *starterIndex)
     char **lines;
     unsigned char *code = (unsigned char *)malloc(sizeof(unsigned char) * maxSize);
     int numlines = split(buffer, '\n', lines); // divide o buffer em linhas retornando o numero de linhas
-    // string *lines = breakInto(buffer, &nLines, '\n'); // divide o buffer em linhas
     char firstCharacter;
     var *tempVars; // variaveis temporarias
     for (i = 0; i < nLines; i++)
@@ -160,7 +158,6 @@ unsigned char *convertionWrapper(string buffer, funcp *entry, int *starterIndex)
         }
     }
     code = fixCallIndexes(code, callerIndexes, functionsIndexes, callsIndexesSize, functionIndexesSize);
-    // botar o indice da ultima funcao aqui indices 5-8
     *starterIndex = functionsIndexes[functionIndexesSize];
     return code;
 }
@@ -730,25 +727,25 @@ byte *varToR12(int varN)
     constante ou operacao
 */
 
-/*
+
 var *parseLineToVar(string line, int *size)
 {
-   // string *pieces = breakInto(line, size, ' '); // quebra em espacos
+    char ** pieces;
+    *size = split(line, ' ',&pieces); // quebra em espacos
     var *vars = malloc(sizeof(var) * (*size));   // aloca memoria para as variaveis
     char firstLetter;                            // primeira letra da linha
     int j = 0;                                   // indice de var[]
     for (int i = 0; i < *size; i++)
     { // para cada variavel
-        firstLetter = pieces[i].value[0];
+        firstLetter = pieces[i][0];
         switch (firstLetter)
         {
         case 'v':
-            vars[j].value = pieces[i].value[1] - '0'; // pega o valor da variavel
+            vars[j].value = pieces[i][0] - '0'; // pega o valor da variavel
             vars[j].isVar = 1;                        // variavel
             break;
         case '$':
-            string removeAux = removeFirstChar(pieces[i]);
-            char *aux = (char *)removeAux.value;
+            char* aux = removeFirstChar(pieces[i]);
             vars[j].isVar = 0;         // constante
             vars[j].value = atoi(aux); // pega o valor da constante
             break;
@@ -771,7 +768,7 @@ var *parseLineToVar(string line, int *size)
         default:
             if (firstLetter - '0' >= 0 && firstLetter - '0' <= 9)
             {
-                vars[j].value = pieces[i].value[1] - '0'; // pega o valor de indice de funcao
+                vars[j].value = pieces[i][1] - '0'; // pega o valor de indice de funcao
                 vars[j].isVar = 2;                        // indice de funcao
             }
             else
@@ -784,7 +781,7 @@ var *parseLineToVar(string line, int *size)
     }
     return vars;
 }
-*/
+
 // funcao que devolve os bytes de acordo com o tipo de var
 byte *varOrConstBytes(var v, int *size)
 {
@@ -1210,6 +1207,8 @@ int testPushMachineCode()
     return 0;
 }
 
+/*
+
 int main()
 {
     int size = 0, maxSize = 30;
@@ -1233,3 +1232,7 @@ int main()
     free(code);
     return 0;
 }
+
+*/
+
+
