@@ -33,6 +33,15 @@ typedef struct __var
     */
 } var;
 
+void printBytes(byte *bytes, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        printf("%d = %02x\n", i, bytes[i]);
+    }
+    printf("\n");
+}
+
 // funcoes de interpretacao de codigo de maquina
 var *parseLineToVar(string line, int *size);
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry);
@@ -142,6 +151,7 @@ unsigned char *convertionWrapper(string buffer, funcp *entry, int *starterIndex)
             code = generateZret(code, &currentSize, &maxSize, tempVars[0], tempVars[1]);
             code = generateReturn(code, &currentSize,
                                   &maxSize, tempVars[1]);
+            code = generateEnd(code, &currentSize, &maxSize);
         default:
             break;
         }
@@ -179,7 +189,9 @@ pula:
 */
 byte *generateZret(byte *code, int *currentSize, int *maxSize, var v1, var v2)
 {
-    byte *mov = varToR12(v1.value);            // mov
+    printf("v1: %d\n", v1.value);
+    byte *mov = varToR12(v1.value);  // mov
+    printBytes(mov, 4);
     byte cmpTo0[4] = {0x49, 0x83, 0xfc, 0x00}; // cmp $0, %r12
     byte jump[2];
     if (v2.isVar == 1)
@@ -305,7 +317,7 @@ byte *generateSum(var v, int *len)
 
 byte *generateCall(int funcIndex)
 {
-    byte *codeToPush = malloc(sizeof(byte) * 8);
+    byte *codeToPush = malloc(sizeof(byte) * 9);
     byte *aux = intToBytes(funcIndex);
     codeToPush[0] = 0xe8;
     codeToPush[1] = aux[0];
@@ -315,6 +327,7 @@ byte *generateCall(int funcIndex)
     codeToPush[5] = 0x49;
     codeToPush[6] = 0x89;
     codeToPush[7] = 0xc4;
+
     return codeToPush;
 }
 
@@ -435,18 +448,18 @@ byte *generateOperation(byte *code, int *currentSize, int *maxSize,
     }
     else
     {
-        if (v1.isVar == 1)
+        if (v2.isVar == 1)
         { // move variavel para argumento
             lenMov = 4;
             mov = malloc(sizeof(byte) * lenMov);
             mov[0] = 0x48;
             mov[1] = 0x8b;
             mov[2] = 0x7d;
-            mov[3] = varInMC(v1.value); // numero da variavel
+            mov[3] = varInMC(v2.value); // numero da variavel
         }
         else
         {                                              // move constante para argumento
-            byte *constInBytes = intToBytes(v1.value); // converte para bytes
+            byte *constInBytes = intToBytes(v2.value); // converte para bytes
             lenMov = 7;
             mov = malloc(sizeof(byte) * lenMov);
             mov[0] = 0x48;
@@ -457,7 +470,7 @@ byte *generateOperation(byte *code, int *currentSize, int *maxSize,
             mov[5] = constInBytes[2];
             mov[6] = constInBytes[3];
         }
-        operation = generateCall(v2.value); // gerar o codigo de chamada de funcao
+        operation = generateCall(op.value); // gerar o codigo de chamada de funcao
         lenOperation = 8;
         *newCaller = lenMov + (*currentSize); // salva o indice do codigo de chamada para fazer a correcao ao final
     }
@@ -667,12 +680,11 @@ byte *generateFunction(byte *code, int *currentSize, int *maxSize)
 byte *varToR12(int varN)
 {
     byte lastByte = varInMC(varN);
-    byte *res = malloc(sizeof(byte) * 5);
+    byte *res = malloc(sizeof(byte) * 4);
     res[0] = 0x4c;
     res[1] = 0x8b;
-    res[2] = 0x64;
-    res[3] = 0x24;
-    res[4] = lastByte;
+    res[2] = 0x65;
+    res[3] = lastByte;
     return res;
 }
 
@@ -680,7 +692,6 @@ byte *varToR12(int varN)
 
     Dado uma linha do arquivo decompoe-la em uma variavel,
     constante ou operacao
-
 */
 
 /*
@@ -858,6 +869,16 @@ byte *intToBytes(int x)
     return array;
 }
 
+int bytesToInt(byte * b){
+    int res = 0;
+    printBytes(b,4);
+    res += b[3] << 24;
+    res += b[2] << 16;
+    res += b[1] << 8;
+    res += b[0];
+    return res;
+}
+
 byte *fixCallIndexes(byte *code, int *callers, int *functions, int sizeCallers, int sizeFunctions)
 {
     int i;
@@ -867,12 +888,12 @@ byte *fixCallIndexes(byte *code, int *callers, int *functions, int sizeCallers, 
     byte *aux = malloc(sizeof(byte) * 4);
     for (i = 0; i < sizeCallers; i++)
     {
-        call = callers[i];
+        call = callers[i] +1;
         aux[0] = code[call];
         aux[1] = code[call + 1];
         aux[2] = code[call + 2];
         aux[3] = code[call + 3];
-        // indexF = bytesToInt(aux);
+        indexF = bytesToInt(aux);
         indexFunctionOnCode = functions[indexF];
         free(aux);
         aux = intToBytes(indexFunctionOnCode - call);
@@ -950,39 +971,57 @@ void freeBuffer(string buffer)
 }
 
 // area de testes
-
-void printBytes(byte *bytes, int size)
-{
-    for (int i = 0; i < size; i++)
-    {
-        printf("%d = %02x\n", i, bytes[i]);
-    }
-    printf("\n");
+byte * testGenCall(byte * code, int * maxSize,int *size,int *newCaller){
+  var v,v1,op,v2;
+  v.isVar = 1;
+  v.value = 0;  
+  v1.isVar = -1;
+  v1.value = 4;
+  op.isVar = 2;
+  op.value = 1;
+  v2.isVar = 0;
+  v2.value = 0xFFF;
+  code = generateFunction(code, size, maxSize);
+  printBytes(code, *size);
+  printf("Size: %d\n",*size);
+  code = generateOperation(code,size,maxSize,v1,op,v2,newCaller);
+  printf("Size 101 : %d\n",*size);  
+  printBytes(code, *size);
+  code = generateAssigment(code, size, maxSize,v.value);
+    printf("Size 102 : %d\n",*size);
+    printBytes(code, *size);
+  code = generateReturn(code,size,maxSize,v);
+    printf("Size 103 : %d\n",*size);
+    printBytes(code, *size);
+  code = generateEnd(code,size,maxSize);
+    printf("Size 104 : %d\n",*size);
+    printBytes(code, *size);
+  return code;
 }
 
-byte * testGenZret(){
-  int maxSize = 30;
-  int size = 0;
+byte * testGenZret(byte * code, int * maxSize,int *size){
   var v1,v2;
-  byte * code;
   v2.isVar = 0;
   v2.value = 0xFFF;
   v1.isVar = 1;
   v1.value = -1;
-  code = (byte *)malloc(sizeof(byte) * (maxSize));
-  code = generateFunction(code, &size, &maxSize);
-  printBytes(code, size);
-  printf("Size: %d\n",size);
-  code = generateZret(code, &size, &maxSize,v1,v2);
-  printBytes(code, size);
-  printf("Size 1: %d\n",size);
-  code = generateReturn(code, &size, &maxSize,v1);
-  printBytes(code, size);
-  printf("Size 2: %d\n", size);
-  code = generateEnd(code, &size, &maxSize);
-  printBytes(code, size);
-  printf("Size 3: %d\n",size);
-  
+  code = generateFunction(code, size, maxSize);
+  printBytes(code, *size);
+  printf("Size: %d\n",*size);
+  code = generateZret(code, size, maxSize,v1,v2);
+  printBytes(code, *size);
+  printf("Size 1: %d\n",*size);
+  code = generateReturn(code, size, maxSize,v2);
+  printf("Size 1.5: %d\n",*size);
+  printBytes(code, *size);
+  code = generateEnd(code, size, maxSize);
+  printBytes(code, *size);
+  code = generateReturn(code, size, maxSize,v1);
+  printBytes(code,*size);
+  printf("Size 2: %d\n",*size);
+  code = generateEnd(code, size, maxSize);
+  printBytes(code,*size);
+  printf("Size 3: %d\n",*size);
   return code;
 }
 
@@ -1007,23 +1046,13 @@ byte * testGenSumAssigment(byte * code,int * maxSize, int * size){
     int funcNum;
     var v1,v2,op,v;
     v2.isVar = 0;
-<<<<<<< HEAD
-    v2.value = 3;
-=======
     v2.value = 4;
->>>>>>> 49c5bda3c01869fb27867fc7e84bb4c1283f2fb0
     v1.isVar = 1;
     v1.value = 0;
     code = generateAssigmentOneToOne(code, size, maxSize,v1,v2);
     printBytes(code, *size);
     printf("Size a: %d\n",*size);
     v2.isVar = 1;
-<<<<<<< HEAD
-    v2.value = 0;
-    v1.isVar = 1;
-    v1.value = 1;
-    code = generateAssigment(code, size, maxSize,v1);
-=======
     v2.value = 0;
     v1.value = 2;
     v1.isVar = 0;
@@ -1033,7 +1062,6 @@ byte * testGenSumAssigment(byte * code,int * maxSize, int * size){
     op.isVar=-2;
     code = generateOperation(code,size,maxSize,v1,op,v2,&funcNum);
     code = generateAssigment(code, size, maxSize,v.value);
->>>>>>> 49c5bda3c01869fb27867fc7e84bb4c1283f2fb0
     printf("Size a: %d\n",*size);
     return code;
 }
@@ -1047,13 +1075,11 @@ byte * testGenSumReturn(int * maxSize, int * size){
     printBytes(code,* size);
     return code;
 }
-byte * testGenSumEnd(){
-    int maxSize = 30;
-    int size = 0;
-    byte * code = testGenSumReturn(&maxSize,&size);
-    code = generateEnd(code, &size, &maxSize);
-    printBytes(code, size);
-    printf("Size 3: %d\n",size);
+byte * testGenSumEnd(int * maxSize,int * size){
+    byte * code = testGenSumReturn(maxSize,size);
+    code = generateEnd(code, size, maxSize);
+    printBytes(code, *size);
+    printf("Size 3: %d\n",*size);
     return code;
 }
 
@@ -1143,15 +1169,24 @@ int testPushMachineCode()
 
 int main()
 {
+    int size = 0, maxSize = 30;
+    int functionIndex[3]= {0,41,78};
+    int * newCaller;
+    byte * func;
     testPushMachineCode();
     testIntToBytes();
-    // testRemoveFirstChar();
     testVarInMCode();
     testVarOrConst();
     testVarToR12();
-    byte * code = testGenZret(); //faltadno 2 free ate aq
-    funcp f = (funcp)code;
-    printf("Res f: %d\n",f(3));
+    byte * code = testGenSumEnd(&maxSize,&size); //faltadno 2 free ate aq
+    code = testGenZret(code,&maxSize,&size);
+    code = testGenCall(code,&maxSize,&size,newCaller);
+    printf("Fixing ...\n");
+    code = fixCallIndexes(code,newCaller,functionIndex,1,3);
+    func = &code[78];
+    printf("%02x\n",*func);
+    funcp f = (funcp)func;
+    printf("Res f: %d\n",f(0));
     free(code);
     return 0;
 }

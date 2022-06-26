@@ -13,14 +13,18 @@ int boo(int d,int n){
     return v[n-1];
 }
 */
-
-
-    movq -40(%rsp), %r12
-
-
-
-
-
+func:
+pushq %rbp
+movq %rsp, %rbp
+subq $48, %rsp
+movq %rdi, -48(%rbp)
+movq $0xFFF,%rdi
+call func
+movq %rax,%r12
+movq %r12,-40(%rbp)
+movq -40(%rbp), %rax
+leave
+ret
 
 /*
 function1:
