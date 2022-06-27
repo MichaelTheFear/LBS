@@ -43,7 +43,7 @@ void printBytes(byte *bytes, int size)
 }
 
 // funcoes de interpretacao de codigo de maquina
-var *parseLineToVar(string line, int *size);
+var *parseLineToVar(char *s, int *size);
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry);
 unsigned char *convertionWrapper(string buffer, funcp *entry, int *starterIndex);
 byte *fixCallIndexes(byte *code, int *callsIndexes, int *functionIndexes,
@@ -80,6 +80,14 @@ byte *varOrConstBytes(var v, int *size);
 byte *varToR12(int varNum);
 char *removeFirstChar(char *s);
 
+
+
+void printVars(var * vars,int size){
+    for(int i = 0; i < size; i++){
+        printf("var[%d]: %d , %d\n", i, vars[i].value, vars[i].isVar);
+    }
+}
+
 void gera_codigo(FILE *f, unsigned char code[], funcp *entry)
 {
     string buffer = generateBuffer(f);
@@ -87,7 +95,7 @@ void gera_codigo(FILE *f, unsigned char code[], funcp *entry)
     unsigned char *lbsFunction;
     code = (unsigned char *)convertionWrapper(buffer, entry, &starterIndex);
     lbsFunction = &code[starterIndex];
-    entry = (funcp)lbsFunction;
+    *entry = (funcp)lbsFunction;
     freeBuffer(buffer);
 }
 
@@ -105,7 +113,7 @@ unsigned char *convertionWrapper(string buffer, funcp *entry, int *starterIndex)
     int newCaller = -1;
     char **lines;
     unsigned char *code = (unsigned char *)malloc(sizeof(unsigned char) * maxSize);
-    int numlines = split(buffer, '\n', lines); // divide o buffer em linhas retornando o numero de linhas
+    nLines = split(buffer, '\n', &lines); // divide o buffer em linhas retornando o numero de linhas
     char firstCharacter;
     var *tempVars; // variaveis temporarias
     for (i = 0; i < nLines; i++)
@@ -123,12 +131,16 @@ unsigned char *convertionWrapper(string buffer, funcp *entry, int *starterIndex)
             break;
         case 'r':
             tempVars = parseLineToVar(lines[i], &auxTempVars);
+            auxTempVars--;
+
             code = generateReturn(code, &currentSize,
                                   &maxSize, tempVars[0]);
             free(tempVars);
             break;
         case 'v':
             tempVars = parseLineToVar(lines[i], &auxTempVars);
+            auxTempVars--;
+
             if (auxTempVars != 2)
             {
                 code = generateOperation(code, &currentSize, &maxSize,
@@ -143,22 +155,28 @@ unsigned char *convertionWrapper(string buffer, funcp *entry, int *starterIndex)
             }
             else
             {
-                code = generateAssigmentOneToOne(code, &currentSize, &maxSize, tempVars[0], tempVars[1]);
+                code = generateAssigmentOneToOne(code, &currentSize, &maxSize,
+                 tempVars[0], tempVars[1]);
             }
             free(tempVars);
             break;
         case 'z':
             tempVars = parseLineToVar(lines[i], &auxTempVars);
+            auxTempVars--;
+
             code = generateZret(code, &currentSize, &maxSize, tempVars[0], tempVars[1]);
             code = generateReturn(code, &currentSize,
                                   &maxSize, tempVars[1]);
             code = generateEnd(code, &currentSize, &maxSize);
+            break;
         default:
             break;
         }
+
     }
     code = fixCallIndexes(code, callerIndexes, functionsIndexes, callsIndexesSize, functionIndexesSize);
-    *starterIndex = functionsIndexes[functionIndexesSize];
+    *starterIndex = functionsIndexes[functionIndexesSize-1];
+    printBytes(code,currentSize);
     return code;
 }
 
@@ -222,9 +240,7 @@ pula:
 */
 byte *generateZret(byte *code, int *currentSize, int *maxSize, var v1, var v2)
 {
-    printf("v1: %d\n", v1.value);
     byte *mov = varToR12(v1.value); // mov
-    printBytes(mov, 4);
     byte cmpTo0[4] = {0x49, 0x83, 0xfc, 0x00}; // cmp $0, %r12
     byte jump[2];
     if (v2.isVar == 1)
@@ -330,15 +346,12 @@ byte *generateSum(var v, int *len)
     else
     {
         byte *aux = intToBytes(v.value);
-        *len = 7;
+        *len = 4;
         codeToPush = malloc(sizeof(byte) * (*len));
         codeToPush[0] = 0x49;
-        codeToPush[1] = 0x81;
+        codeToPush[1] = 0x83;
         codeToPush[2] = 0xc4;
         codeToPush[3] = aux[0];
-        codeToPush[4] = aux[1];
-        codeToPush[5] = aux[2];
-        codeToPush[6] = aux[3];
     }
     return codeToPush;
 }
@@ -619,7 +632,6 @@ byte *generateReturn(byte *code, int *currentSize, int *maxSize, var v)
     int size;
     if (v.isVar == 1)
     { // se for variavel ou argumento
-        printf("\n?\n");
         size = 4;
         codeToPush = malloc(sizeof(byte) * 4);
         codeToPush[0] = 0x48;
@@ -732,7 +744,7 @@ var *parseLineToVar(char *s, int *size)
     char **pieces;
     string line;
     line.value = s;
-    line.size = strlen(s);
+    line.len = strlen(s);
     *size = split(line, ' ', &pieces);         // quebra em espacos
     var *vars = malloc(sizeof(var) * (*size)); // aloca memoria para as variaveis
     char firstLetter;                          // primeira letra da linha
@@ -743,7 +755,7 @@ var *parseLineToVar(char *s, int *size)
         switch (firstLetter)
         {
         case 'v':
-            vars[j].value = pieces[i][0] - '0'; // pega o valor da variavel
+            vars[j].value = pieces[i][1] - '0'; // pega o valor da variavel
             vars[j].isVar = 1;                  // variavel
             break;
         case '$':
@@ -770,7 +782,7 @@ var *parseLineToVar(char *s, int *size)
         default:
             if (firstLetter - '0' >= 0 && firstLetter - '0' <= 9)
             {
-                vars[j].value = pieces[i][1] - '0'; // pega o valor de indice de funcao
+                vars[j].value = firstLetter - '0'; // pega o valor de indice de funcao
                 vars[j].isVar = 2;                  // indice de funcao
             }
             else
@@ -821,46 +833,6 @@ byte varInMC(int x)
 }
 
 /*
-Dado uma string, retorna um array de strings,
-usando o caracter c como separador.
-O tamanho do array é retornado em size.
-*/
-
-int split(string *txt, char delim, char ***tokens)
-{
-    int *tklen, *t, count = 1;
-    char **arr, *p = txt->value;
-
-    while (*p != '\0')
-        if (*p++ == delim)
-            count += 1;
-
-    t = tklen = calloc(count, sizeof(int));
-
-    for (p = (char *)txt->value; *p != '\0'; p++)
-        *p == delim ? *t++ : (*t)++;
-
-    *tokens = arr = malloc(count * sizeof(char *));
-    t = tklen;
-    p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
-
-    while (*txt->value != '\0')
-    {
-        if (*txt->value == delim)
-        {
-            p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
-            *txt->value++;
-        }
-
-        else
-            *p++ = *txt->value++;
-    }
-
-    free(tklen);
-    return count;
-}
-
-/*
 Dado bytes, retorna um array de 4 bytes, em little Endian
 (basicamente o inverso do array).
 Se fillFF for 1, o resto do array é preenchido com 0xFF.
@@ -907,7 +879,6 @@ byte *intToBytes(int x)
 int bytesToInt(byte *b)
 {
     int res = 0;
-    printBytes(b, 4);
     res += b[3] << 24;
     res += b[2] << 16;
     res += b[1] << 8;
@@ -931,8 +902,9 @@ byte *fixCallIndexes(byte *code, int *callers, int *functions, int sizeCallers, 
         aux[3] = code[call + 3];
         indexF = bytesToInt(aux);
         indexFunctionOnCode = functions[indexF];
+        printf("%d , %d\n",indexF,indexFunctionOnCode);
         free(aux);
-        aux = intToBytes(indexFunctionOnCode - call);
+        aux = intToBytes(indexFunctionOnCode -(call));
         code[call] = aux[0];
         code[call + 1] = aux[1];
         code[call + 2] = aux[2];
@@ -1161,19 +1133,7 @@ int testVarInMCode()
     printf("%s\n", res == 0xd0 ? "OK" : "ERRO");
     return 0;
 }
-int testRemoveFirstChar()
-{
-    string s = {.len = 5, .value = "teste"};
-    string newstr = removeFirstChar(s);
-    if (strcmp(newstr.value, "este") == 0)
-    {
-        printf("removeFirstChar ok\n");
-        return 1;
-    }
-    printf("removeFirstChar failed\n");
-    free(newstr.value);
-    return 0;
-}
+
 int testIntToBytes()
 {
     int x = 0x12345678;
@@ -1235,12 +1195,14 @@ int main()
 
 */
 
-int main(){
-    FILE * lbs=fopen("main.lbs","r");
+int main()
+{
+    FILE *lbs = fopen("main.lbs", "r");
     funcp f;
-    unsigned char * code = gera_codigo(lbs,code,&f);
+    unsigned char *code;
+    gera_codigo(lbs, code, &f);
     fclose(lbs);
-    printf("%d\n",f(0));
+    printf("\n\n\nResult LBS: %d\n\n\n", f(3));
     free(code);
     return 0;
 }

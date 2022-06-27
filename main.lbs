@@ -1,0 +1,9 @@
+function
+v0 = $2 + p0
+ret v1
+end
+function
+v0 = call 0 $2
+zret $0 $2
+ret v0
+end
